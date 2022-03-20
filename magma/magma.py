@@ -153,6 +153,8 @@ class Magma(nn.Module):
 
     def add_adapters(
         self,
+        ff_attr: str = "mlp",
+        attn_attr: str = "attn",
     ):
         for l in range(len(self.transformer)):
             if (l, 'mlp') in self.adapter_map:
@@ -160,7 +162,7 @@ class Magma(nn.Module):
                 if self.mlp_adapter_added:
                     raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
-                if adapter_type in ["parallel", "scaled_parallel"]:
+                if isinstance(adpt, ParallelAdapterWrapper):
                     adapter_layer = adpt
                     setattr(adapter_layer, 'module', mlp)
                 else:
