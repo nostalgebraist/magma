@@ -115,8 +115,6 @@ class Magma(nn.Module):
 
         for l in range(len(self.transformer)):
             if location == "mlp":
-                if self.mlp_adapter_added:
-                    raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
                 if adapter_type in ["parallel", "scaled_parallel"]:
                     adpt = ParallelAdapter(
@@ -160,7 +158,7 @@ class Magma(nn.Module):
     ):
         for l in range(len(self.transformer)):
             if (l, 'mlp') in self.adapter_map:
-                adpt = self.adapter_map[(l, 'mlp')]
+                adpt = self.adapter_map.pop((l, 'mlp'))
                 if self.mlp_adapter_added:
                     raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
@@ -176,12 +174,36 @@ class Magma(nn.Module):
                     )
                 setattr(self.transformer[l], ff_attr, adapter_layer)
             elif (l, 'attn') in self.adapter_map:
-                adapter_layer = self.adapter_map[(l, 'attn')]
+                adpt = self.adapter_map.pop((l, 'attn'))
                 if self.attn_adapter_added:
                     raise ValueError("Adapter layer already added")
                 attn = getattr(self.transformer[l], attn_attr)
                 setattr(adapter_layer, 'module', attn)
                 setattr(self.transformer[l], attn_attr, adapter_layer)
+
+    def detach_adapters(
+        self,
+        ff_attr: str = "mlp",
+        attn_attr: str = "attn",
+    ):
+        for l in range(len(self.transformer)):
+            mlp = getattr(self.transformer[l], ff_attr)
+            if isinstance(mlp, ParallelAdapterWrapper):
+                orig = getattr(mlp, 'module')
+                self.adapter_map[(l, 'mlp')] = mlp
+                self.adapter_map[(l, 'mlp')].module = None
+                setattr(self.transformer[l], ff_attr, orig)
+            elif isinstance(mlp, nn.Sequential):
+                orig = mlp[0]
+                self.adapter_map[(l, 'mlp')] = mlp[1]
+                setattr(self.transformer[l], ff_attr, orig)
+
+            attn = getattr(self.transformer[l], attn_attr)
+            if isinstance(attn, AdapterWrapper) or isinstance(attn, ParallelAdapterWrapper):
+                orig = getattr(attn, 'module')
+                self.adapter_map[(l, 'attn')] = attn
+                self.adapter_map[(l, 'attn')].module = None
+                setattr(self.transformer[l], attn_attr, orig)
 
     def preprocess_inputs(self, input_list: list, embed = True) -> List[torch.Tensor]:
         """
