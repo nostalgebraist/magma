@@ -90,6 +90,8 @@ class Magma(nn.Module):
                     **attn_config,
                 )
 
+        self.add_adapters()
+
         # freeze parameters
         if config.freeze_lm:
             for name, param in self.lm.named_parameters():  # freeze lm weights
