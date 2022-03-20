@@ -1,11 +1,14 @@
 import torch
 import torch.nn as nn
 from typing import Callable, Union
+from functools import partial
 from torchtyping import patch_typeguard
 from einops import rearrange
 import timm
 import clip
 from functools import partial
+from .utils import no_init
+
 
 # ----------------------------- Utils --------------------------------------
 
@@ -62,7 +65,8 @@ def clip_encoder(
     else:
         raise ValueError(f"encoder {name} not recognized")
 
-    encoder = clip.load(name, device=device)[0].visual
+    encoder = no_init(partial(clip.load, name=name, device=device))[0].visual
+    # encoder = clip.load(name, device=device)[0].visual
 
     if device is not None:
         encoder = encoder.to(device)

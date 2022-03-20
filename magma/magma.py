@@ -1,5 +1,6 @@
 from pathlib import Path
 from os.path import exists
+import os
 import torch
 import torch.nn as nn
 from copy import deepcopy
@@ -328,6 +329,34 @@ class Magma(nn.Module):
         print_main('loading checkpoint magma')
         model.load_state_dict(sd, strict=False)
         print_main("magma model successfully loaded")
+
+        model.half().to(device)
+        return model
+
+    def save_split_checkpoint(self, path):
+        os.makedirs(path, exist_ok=True)
+
+        self.detach_adapters()
+
+        torch.save(self.image_prefix.state_dict(), f'{path}/image_prefix.pt')
+        adapter_map_sd = {k: self.adapter_map[k].state_dict() for k in self.adapter_map}
+        torch.save(adapter_map_sd, f'{path}/adapter_map.pt')
+
+        self.add_adapters()
+
+    @classmethod
+    def from_split_checkpoint(cls, config_path, path, gptj_state_dict, device = 'cpu'):
+        model = cls(config = config_path)
+
+        model.detach_adapters()
+
+        model.lm.load_state_dict(gptj_state_dict)
+
+        model.image_prefix.load_state_dict(torch.load(f'{path}/image_prefix.pt'))
+        adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
+
+        for k in model.adapter_map:
+            model.adapter_map[k].load_state_dict(adapter_map_sd[k])
 
         model.half().to(device)
         return model

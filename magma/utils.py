@@ -368,5 +368,22 @@ def is_url(string):
     return string.startswith("http://") or string.startswith("https://")
 
 def download_checkpoint(checkpoint_url, save_as):
-    
+
     gdown.download(url = checkpoint_url, output = save_as, quiet=False)
+
+
+def no_init(loading_code):
+    def dummy(self):
+        return
+
+    modules = [torch.nn.Linear, torch.nn.Embedding, torch.nn.LayerNorm]
+    original = {}
+    for mod in modules:
+        original[mod] = mod.reset_parameters
+        mod.reset_parameters = dummy
+
+    result = loading_code()
+    for mod in modules:
+        mod.reset_parameters = original[mod]
+
+    return result

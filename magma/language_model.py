@@ -2,7 +2,7 @@ from functools import partial
 
 import torch
 from transformers import GPTNeoForCausalLM, AutoConfig, GPT2LMHeadModel
-from .utils import print_main
+from .utils import print_main, no_init
 from pathlib import Path
 from transformers.modeling_utils import no_init_weights
 
@@ -45,22 +45,6 @@ def _get_gptj(
         with no_init_weights():
             model = GPTNeoForCausalLM(config=config)
     return model
-
-def no_init(loading_code):
-    def dummy(self):
-        return
-
-    modules = [torch.nn.Linear, torch.nn.Embedding, torch.nn.LayerNorm]
-    original = {}
-    for mod in modules:
-        original[mod] = mod.reset_parameters
-        mod.reset_parameters = dummy
-
-    result = loading_code()
-    for mod in modules:
-        mod.reset_parameters = original[mod]
-
-    return result
 
 def get_gptj(
     gradient_checkpointing: bool = True,
