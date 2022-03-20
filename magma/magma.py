@@ -70,11 +70,12 @@ class Magma(nn.Module):
         )
 
         # add adapters
+        self.adapter_map = {}
         if config.adapter_config:
             mlp_config = deepcopy(config.adapter_config.get("mlp", None))
             if mlp_config:
                 assert mlp_config.get("adapter_type") is not None
-                self.add_adapters(
+                self.build_adapters(
                     location="mlp",
                     adapter_type=mlp_config.pop("adapter_type"),
                     downsample_factor=mlp_config.pop("downsample_factor", 4),
@@ -83,7 +84,7 @@ class Magma(nn.Module):
             attn_config = deepcopy(config.adapter_config.get("attention", None))
             if attn_config:
                 assert attn_config.get("adapter_type") is not None
-                self.add_adapters(
+                self.build_adapters(
                     location="attention",
                     adapter_type=attn_config.pop("adapter_type"),
                     **attn_config,
@@ -99,7 +100,7 @@ class Magma(nn.Module):
             for param in self.image_prefix.enc.parameters():
                 param.requires_grad = False
 
-    def add_adapters(
+    def build_adapters(
         self,
         downsample_factor: int = 4,
         adapter_type = "normal",
@@ -108,18 +109,7 @@ class Magma(nn.Module):
         attn_attr: str = "attn",
         **adapter_kwargs,
     ):
-        """
-        Adds an adapter layer to `self` at the specified location
-        """
-        assert adapter_type in [
-            "normal",
-            "parallel",
-            "scaled_parallel",
-        ], "adapter_type must be one of 'normal', 'parallel', or 'scaled_parallel'"
-        assert location in [
-            "mlp",
-            "attention",
-        ], "location must be one of 'mlp' or 'attention'"
+        adapter_map = {}
 
         for l in range(len(self.transformer)):
             if location == "mlp":
@@ -127,8 +117,8 @@ class Magma(nn.Module):
                     raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
                 if adapter_type in ["parallel", "scaled_parallel"]:
-                    adapter_layer = ParallelAdapter(
-                        module=mlp,
+                    adpt = ParallelAdapter(
+                        module=None,
                         dim=self.lm.config.hidden_size,
                         downsample_factor=downsample_factor,
                         scaled=adapter_type == "scaled_parallel",
@@ -140,20 +130,12 @@ class Magma(nn.Module):
                         downsample_factor=downsample_factor,
                         **adapter_kwargs,
                     )
-                    adapter_layer = nn.Sequential(
-                        *[
-                            mlp,
-                            adpt,
-                        ]
-                    )
-                setattr(self.transformer[l], ff_attr, adapter_layer)
+                adapter_map[(l, 'mlp')] = adpt
             else:
-                if self.attn_adapter_added:
-                    raise ValueError("Adapter layer already added")
                 attn = getattr(self.transformer[l], attn_attr)
                 if adapter_type in ["parallel", "scaled_parallel"]:
                     adapter_layer = ParallelAdapterWrapper(
-                        module=attn,
+                        module=None,
                         dim=self.lm.config.hidden_size,
                         downsample_factor=downsample_factor,
                         scaled="scaled" in adapter_type,
@@ -161,17 +143,43 @@ class Magma(nn.Module):
                     )
                 else:
                     adapter_layer = AdapterWrapper(
-                        attn_block=attn,
+                        attn_block=None,
                         dim=self.lm.config.hidden_size,
                         downsample_factor=downsample_factor,
                         **adapter_kwargs,
                     )
-                setattr(self.transformer[l], attn_attr, adapter_layer)
+                adapter_map[(l, 'mlp')] = adapter_layer
+        self.adapter_map.update(adapter_map)
 
-        if location == "mlp":
-            self.mlp_adapter_added = True
-        else:
-            self.attn_adapter_added = True
+    def add_adapters(
+        self,
+    ):
+        for l in range(len(self.transformer)):
+            if (l, 'mlp') in self.adapter_map:
+                adpt = self.adapter_map[(l, 'mlp')]
+                if self.mlp_adapter_added:
+                    raise ValueError("Adapter layer already added")
+                mlp = getattr(self.transformer[l], ff_attr)
+                if adapter_type in ["parallel", "scaled_parallel"]:
+                    adapter_layer = adpt
+                    setattr(adapter_layer, 'module', mlp)
+                else:
+                    adapter_layer = nn.Sequential(
+                        *[
+                            mlp,
+                            adpt,
+                        ]
+                    )
+                setattr(self.transformer[l], ff_attr, adapter_layer)
+                self.mlp_adapter_added = True
+            elif (l, 'attn') in self.adapter_map:
+                adapter_layer = self.adapter_map[(l, 'attn')]
+                if self.attn_adapter_added:
+                    raise ValueError("Adapter layer already added")
+                attn = getattr(self.transformer[l], attn_attr)
+                setattr(adapter_layer, 'module', attn)
+                setattr(self.transformer[l], attn_attr, adapter_layer)
+                self.attn_adapter_added = True
 
     def preprocess_inputs(self, input_list: list, embed = True) -> List[torch.Tensor]:
         """
