@@ -3,7 +3,7 @@ from os.path import exists
 import torch
 import torch.nn as nn
 from copy import deepcopy
-from typing import Literal, Optional, List
+from typing import Optional, List
 from torchtyping import TensorType
 from transformers.file_utils import ModelOutput
 from magma.config import MultimodalConfig
@@ -54,7 +54,7 @@ class Magma(nn.Module):
 
         # adapter settings
         self.mlp_adapter_added, self.attn_adapter_added = False, False
-        
+
         self.image_prefix = ImagePrefix(
             config=config,
             out_dim=self.lm.config.hidden_size,
@@ -102,8 +102,8 @@ class Magma(nn.Module):
     def add_adapters(
         self,
         downsample_factor: int = 4,
-        adapter_type: Literal["normal", "parallel", "scaled_parallel"] = "normal",
-        location: Literal["mlp", "attention"] = "mlp",
+        adapter_type = "normal",
+        location = "mlp",
         ff_attr: str = "mlp",
         attn_attr: str = "attn",
         **adapter_kwargs,
@@ -189,7 +189,7 @@ class Magma(nn.Module):
 
         if embed == True:
             return self.embed(input_list)
-        else: 
+        else:
             return input_list
 
     def embed(self, inputs: List[torch.Tensor]) -> TensorType["b", "s", "d"]:
@@ -282,7 +282,7 @@ class Magma(nn.Module):
         """
 
         checkpoint_url = 'https://bit.ly/aleph-alpha-magma-download'
-       
+
         if exists(checkpoint_path) ==  False:
             print_main(f'checkpoint: {checkpoint_path} does not exist, downloading model')
             download_checkpoint(checkpoint_url = checkpoint_url, save_as = checkpoint_path)
