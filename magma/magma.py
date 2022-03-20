@@ -173,7 +173,6 @@ class Magma(nn.Module):
                         ]
                     )
                 setattr(self.transformer[l], ff_attr, adapter_layer)
-                self.mlp_adapter_added = True
             elif (l, 'attn') in self.adapter_map:
                 adapter_layer = self.adapter_map[(l, 'attn')]
                 if self.attn_adapter_added:
@@ -181,7 +180,6 @@ class Magma(nn.Module):
                 attn = getattr(self.transformer[l], attn_attr)
                 setattr(adapter_layer, 'module', attn)
                 setattr(self.transformer[l], attn_attr, adapter_layer)
-                self.attn_adapter_added = True
 
     def preprocess_inputs(self, input_list: list, embed = True) -> List[torch.Tensor]:
         """
