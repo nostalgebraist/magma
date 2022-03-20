@@ -350,7 +350,11 @@ class Magma(nn.Module):
 
         model.detach_adapters()
 
+        model.lm.resize_token_embeddings(50258)
+
         model.lm.load_state_dict(gptj_state_dict)
+
+        model.lm.resize_token_embeddings(50400)
 
         model.image_prefix.load_state_dict(torch.load(f'{path}/image_prefix.pt'))
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
