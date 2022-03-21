@@ -75,10 +75,14 @@ if __name__ == "__main__":
     args = parse_args()
     deepspeed.init_distributed()
 
+
     # load model + tokenizer:
-    model = Magma(
-        args.config
-    )  # for finetuning one might want to load the model via Magma.from_checkpoint(...) here
+    if args.ckpt_path:
+        model = Magma.from_split_checkpoint(args.config, args.ckpt_path, os.path.join(args.ckpt_path, 'lm.pt'))
+    else:
+        model = Magma(
+            args.config
+        )
     tokenizer, config, transforms = model.tokenizer, model.config, model.transforms
 
     # filter frozen from trainable parameters:

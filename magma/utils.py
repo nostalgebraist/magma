@@ -69,6 +69,9 @@ def parse_args():
         default=-1,
         help="local rank passed from distributed launcher",
     )
+    parser.add_argument(
+        "--ckpt_path", type=str, required=False, help="split ckpt path for finetuning", default=""
+    )
     deepspeed.add_config_arguments(parser)
 
     args = parser.parse_args()
