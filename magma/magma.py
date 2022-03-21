@@ -361,7 +361,7 @@ class Magma(nn.Module):
 
         if isinstance(lm_path_or_state_dict, str):
             # path
-            lm_state_dict = torch.load(lm_path_or_state_dict)
+            lm_state_dict = torch.load(lm_path_or_state_dict, map_location=torch.device("cpu"))
         else:
             lm_state_dict = lm_path_or_state_dict
 
