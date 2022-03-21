@@ -357,7 +357,6 @@ class Magma(nn.Module):
 
         model.detach_adapters()
 
-        model.lm.resize_token_embeddings(50400)
 
         if isinstance(lm_path_or_state_dict, str):
             # path
@@ -365,9 +364,16 @@ class Magma(nn.Module):
         else:
             lm_state_dict = lm_path_or_state_dict
 
+        n_emb_ckpt = lm_state_dict['transformer.wte.weight'].shape[0]
+        n_emb_us = model.lm.transformer.wte.weight.shape[0]
+
+        if n_emb_ckpt != n_emb_us:
+            model.lm.resize_token_embeddings(n_emb_ckpt)
+
         model.lm.load_state_dict(lm_state_dict)
 
-        model.lm.resize_token_embeddings(50258)
+        if n_emb_ckpt != n_emb_us:
+            model.lm.resize_token_embeddings(n_emb_us)
 
         torch.load(f'{path}/image_prefix.pt')
         model.image_prefix.load_state_dict()
