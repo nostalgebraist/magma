@@ -375,8 +375,7 @@ class Magma(nn.Module):
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_us)
 
-        torch.load(f'{path}/image_prefix.pt')
-        model.image_prefix.load_state_dict()
+        model.image_prefix.load_state_dict(torch.load(f'{path}/image_prefix.pt'))
 
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
         for k in model.adapter_map:
