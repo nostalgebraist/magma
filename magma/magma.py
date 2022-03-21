@@ -333,36 +333,51 @@ class Magma(nn.Module):
         model.half().to(device)
         return model
 
-    def save_split_checkpoint(self, path):
+    def save_split_checkpoint(self, path, save_lm=False):
         os.makedirs(path, exist_ok=True)
 
         self.detach_adapters()
 
+        print('saving: image prefix')
         torch.save(self.image_prefix.state_dict(), f'{path}/image_prefix.pt')
+
+        print('saving: adapters')
         adapter_map_sd = {k: self.adapter_map[k].state_dict() for k in self.adapter_map}
         torch.save(adapter_map_sd, f'{path}/adapter_map.pt')
+
+        if save_lm:
+            print('saving: lm')
+            torch.save(self.lm.state_dict(), f'{path}/lm.pt')
 
         self.add_adapters()
 
     @classmethod
-    def from_split_checkpoint(cls, config_path, path, gptj_state_dict, device = 'cpu'):
+    def from_split_checkpoint(cls, config_path, path, lm_path_or_state_dict, device = 'cpu'):
         model = cls(config = config_path)
 
         model.detach_adapters()
 
         model.lm.resize_token_embeddings(50400)
 
-        model.lm.load_state_dict(gptj_state_dict)
+        if isinstance(lm_path_or_state_dict, str):
+            # path
+            lm_state_dict = torch.load(lm_path_or_state_dict)
+        else:
+            lm_state_dict = lm_path_or_state_dict
+
+        model.lm.load_state_dict(lm_state_dict)
 
         model.lm.resize_token_embeddings(50258)
 
-        model.add_adapters()
+        torch.load(f'{path}/image_prefix.pt')
+        model.image_prefix.load_state_dict()
 
-        model.image_prefix.load_state_dict(torch.load(f'{path}/image_prefix.pt'))
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
-
         for k in model.adapter_map:
+            print(f'loading sd for {k}')  # debug
             model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+
+        model.add_adapters()
 
         model.half().to(device)
         return model
