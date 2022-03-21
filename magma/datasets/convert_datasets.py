@@ -25,9 +25,9 @@ def save_images(img_list, target_dir, mode="mv"):
         desc=f"saving {len(img_list)} images (mode={mode}) to {str(target_dir)}",
     ):
         if mode == "mv":
-            shutil.move(img_path, target_dir)
+            shutil.move(str(img_path), target_dir)
         elif mode == "cp":
-            shutil.copy(img_path, target_dir)
+            shutil.copy(str(img_path), target_dir)
 
 
 def convert_dataset(
