@@ -379,7 +379,7 @@ class Magma(nn.Module):
 
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
         for k in model.adapter_map:
-            print(f'loading sd for {k}')  # debug
+            # print(f'loading sd for {k}')  # debug
             model.adapter_map[k].load_state_dict(adapter_map_sd[k])
 
         model.add_adapters()
