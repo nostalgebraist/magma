@@ -69,9 +69,9 @@ def parse_args():
         default=-1,
         help="local rank passed from distributed launcher",
     )
-    parser.add_argument(
-        "--ckpt_path", type=str, required=False, help="split ckpt path for finetuning", default=""
-    )
+    # parser.add_argument(
+    #     "--ckpt_path", type=str, required=False, help="split ckpt path for finetuning", default=""
+    # )
     deepspeed.add_config_arguments(parser)
 
     args = parser.parse_args()
@@ -225,6 +225,9 @@ def configure_param_groups(model, config):
     param_dict = {
         pn: p for pn, p in model.named_parameters() if p is not None and p.requires_grad
     }
+    for pn in param_dict:
+        print(pn)
+    print(("n_params", n_params))
     assert n_params == len(
         param_dict
     ), f"Some parameters are missing from param groups ({n_params} | {len(param_dict)})"

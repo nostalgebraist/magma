@@ -47,6 +47,7 @@ class MultimodalConfig:
     save_every: int = 2500
     save: str = None
     load: str = None
+    ckpt_path: str = None
 
     # Data:
     # ------------------------------------------------------------
@@ -125,12 +126,13 @@ class MultimodalConfig:
             "train_batch_size": self.batch_size,
             "gradient_accumulation_steps": self.gradient_accumulation_steps,
             "gradient_clipping": self.gradient_clipping,
-            "fp16": {"enabled": True, "loss_scale_window": 250},
+            "fp16": {"enabled": True, "loss_scale_window": 250, "initial_scale_power": 13},
             "scheduler": self.scheduler_dict,
             "zero_optimization": {
                 "stage": self.zero_stage,
                 "load_from_fp32_weights": False,
             },
+            # "memory_breakdown": True,
         }
 
         if self.name is None:

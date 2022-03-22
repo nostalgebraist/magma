@@ -13,6 +13,7 @@ from magma.datasets import (
 from magma.magma import (
     Magma,
 )
+from magma.config import load_config
 from magma.utils import (
     is_main,
     cycle,
@@ -29,7 +30,6 @@ from magma.train_loop import (
     inference_step,
     train_step,
 )
-
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
     if isinstance(dataset_dir, (list, tuple)):
@@ -73,12 +73,15 @@ if __name__ == "__main__":
 
     # parse command line arguments:
     args = parse_args()
+    # fakeargs = FakeArgs(args.config)
     deepspeed.init_distributed()
 
 
     # load model + tokenizer:
-    if args.ckpt_path:
-        model = Magma.from_split_checkpoint(args.config, args.ckpt_path, os.path.join(args.ckpt_path, 'lm.pt'))
+    ckpt_path = load_config(args.config).get('ckpt_path')
+    if ckpt_path:
+        print('loading split')
+        model = Magma.from_split_checkpoint(args.config, ckpt_path, os.path.join(ckpt_path, 'lm.pt'), device='cuda:0')
     else:
         model = Magma(
             args.config

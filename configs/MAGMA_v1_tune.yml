@@ -2,21 +2,23 @@
     # image encoder settings
     encoder_name: 'clip_resnet_large',
     adapter_config: {"mlp": {"adapter_type": "normal", "downsample_factor": 4}},
-    freeze_img_encoder: false,
+    freeze_img_encoder: true,
+    freeze_lm: true,
 
     # train settings
-    batch_size: 32,
+    batch_size: 8,
     train_steps: 150000,
     lr: 1.0e-4,
     min_lr: 0.0,
     lr_decay_iters: 300000,
-    image_enc_lr: 1.0e-6,
+    warmup_num_steps: 100,
+    image_enc_lr: null,
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
     image_size: 384,
 
-    gradient_accumulation_steps: 32,
-    zero_stage: 2,
+    gradient_accumulation_steps: 8,
+    zero_stage: 0,
     gradient_clipping: 1.0,
 
     # dataset / save / load settings
@@ -25,11 +27,13 @@
     eval_dataset_name: 'xmas_384_supplement_incremental1',
     eval_dataset_dir: 'dataset_magma',
 
+    ckpt_path: "magma_split_ckpt",
+
     save: "magma_tune_v0",
     load: "",
     load_optimizer: false,
 
     eval_every: 10000000,
-    save_every: 10,
+    save_every: 1000,
 
 }

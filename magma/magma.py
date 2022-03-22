@@ -97,7 +97,12 @@ class Magma(nn.Module):
         if config.freeze_lm:
             for name, param in self.lm.named_parameters():  # freeze lm weights
                 if config.adapter_config and "adapter" in name:
-                    param.requires_grad = True
+                    i = int(name.split('.')[2])
+                    if i >= 0:
+                        print(f'unfreezing {name}')
+                        param.requires_grad = True
+                else:
+                    param.requires_grad = False
 
         if config.freeze_img_encoder:
             for param in self.image_prefix.enc.parameters():
@@ -288,7 +293,11 @@ class Magma(nn.Module):
         labels = build_labels(
             input_embeddings, captions, self.eos_token, self.device
         )  # build labels from input_embeddings
+        # print(captions)
         word_embeddings = self.word_embedding(captions)
+
+        # print(input_embeddings)
+        # print(word_embeddings)
 
         # join together
         input_embeddings = torch.cat(
@@ -305,6 +314,13 @@ class Magma(nn.Module):
             labels=labels,
             output_hidden_states=output_hidden_states,
         )
+        # print(lm_outputs.loss)
+        # print(lm_outputs.logits)
+
+        # for l in self.transformer:
+        #     g = l.mlp[1].adapter[2].weight.grad
+        #     if g is not None:
+        #         print(g.norm().item())
 
         return lm_outputs
 
