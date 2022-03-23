@@ -3,7 +3,7 @@ import os
 import deepspeed
 import wandb
 from torch.utils.data import random_split, ConcatDataset
-from torch.optim import AdamW
+from torch.optim import Adam, AdamW
 from tqdm import tqdm
 from functools import partial
 from magma.datasets import (
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     print_main(f"Loaded eval dataset with {len(eval_dataset)} samples")
 
     if config.weight_decay == 0.0:
-        opt = AdamW(
+        opt = Adam(
             trainable_parameters,
             config.lr,
             betas=(0.9, 0.95),
