@@ -210,6 +210,12 @@ def configure_param_groups(model, config):
     else:
         all_params = get_params_for_weight_decay_optimization(model, config)
 
+    print('---')
+    for g in all_params:
+        c = Counter(type(p) for p in g["params"])
+        print(c)
+    print('---')
+
     # merge param dicts with shared lr / wd values
     d = defaultdict(dict)
     for param_group in all_params:
@@ -224,6 +230,12 @@ def configure_param_groups(model, config):
         if wd is not None:
             d[key]["weight_decay"] = wd
     all_params = list(d.values())
+
+    print('---')
+    for g in all_params:
+        c = Counter(type(p) for p in g["params"])
+        print(c)
+    print('---')
 
     n_params = sum([len(d["params"]) for d in all_params])
     param_dict = {
