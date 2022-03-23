@@ -106,6 +106,7 @@ class Magma(nn.Module):
                     print(f'unfreezing {name}')
                     param.requires_grad = True
                 else:
+                    print(f'frozen {name}')
                     param.requires_grad = False
 
         if config.freeze_img_encoder:
