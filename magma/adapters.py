@@ -97,17 +97,17 @@ class AdapterWrapper(Adapter):
 
     def __init__(
         self,
-        attn_block: nn.Module,
+        module: nn.Module,
         dim: int,
         downsample_factor: int = 4,
         activation: nn.Module = nn.ReLU,
         add_layernorm: bool = False,
     ):
         super().__init__(dim, downsample_factor, activation, add_layernorm)
-        self.attn_block = attn_block
+        self.module = module
 
     def forward(self, x: TensorType["b", "s", "d"], *attn_args, **attn_kwargs):
-        attn_outputs = self.attn_block(x, *attn_args, **attn_kwargs)
+        attn_outputs = self.module(x, *attn_args, **attn_kwargs)
         attn_output, outputs = (
             attn_outputs[0],
             attn_outputs[1:],
