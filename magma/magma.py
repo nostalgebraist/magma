@@ -154,7 +154,7 @@ class Magma(nn.Module):
                     )
                 else:
                     adapter_layer = AdapterWrapper(
-                        attn_block=None,
+                        module=None,
                         dim=self.lm.config.hidden_size,
                         downsample_factor=downsample_factor,
                         **adapter_kwargs,
