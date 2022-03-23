@@ -96,11 +96,15 @@ class Magma(nn.Module):
         # freeze parameters
         if config.freeze_lm:
             for name, param in self.lm.named_parameters():  # freeze lm weights
+                unfreeze = False
                 if config.adapter_config and "adapter" in name:
                     i = int(name.split('.')[2])
                     if i >= 0:
-                        print(f'unfreezing {name}')
-                        param.requires_grad = True
+                        unfreeze = True
+
+                if unfreeze:
+                    print(f'unfreezing {name}')
+                    param.requires_grad = True
                 else:
                     param.requires_grad = False
 
@@ -396,7 +400,10 @@ class Magma(nn.Module):
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
         for k in model.adapter_map:
             # print(f'loading sd for {k}')  # debug
-            model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+            if k in adapter_map_sd:
+                model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+            else:
+                print(f'not in sd: {k}')
 
         model.add_adapters()
 
