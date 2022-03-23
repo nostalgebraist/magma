@@ -5,8 +5,8 @@
         "mlp": {"adapter_type": "normal", "downsample_factor": 4},
         "attention": {"adapter_type": "normal", "downsample_factor": 8}
     },
-    freeze_img_encoder: true,
-    freeze_lm: false,
+    freeze_img_encoder: false,
+    freeze_lm: true,
 
     # train settings
     batch_size: 8,
