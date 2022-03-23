@@ -182,7 +182,7 @@ class Magma(nn.Module):
                         ]
                     )
                 setattr(self.transformer[l], ff_attr, adapter_layer)
-            elif (l, 'attn') in self.adapter_map:
+            if (l, 'attn') in self.adapter_map:
                 adpt = self.adapter_map.pop((l, 'attn'))
                 adapter_layer = adpt
                 attn = getattr(self.transformer[l], attn_attr)
