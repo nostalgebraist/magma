@@ -5,17 +5,17 @@
         "mlp": {"adapter_type": "normal", "downsample_factor": 4},
         "attention": {"adapter_type": "normal", "downsample_factor": 8}
     },
-    freeze_img_encoder: false,
+    freeze_img_encoder: true,
     freeze_lm: true,
 
     # train settings
     batch_size: 8,
     train_steps: 150000,
-    lr: 2.0e-5,
+    lr: 1.0e-4,
     min_lr: 0.0,
     lr_decay_iters: 300000,
     warmup_num_steps: 100,
-    image_enc_lr: 5e-7,
+    image_enc_lr: null,
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
     image_size: 384,
@@ -37,6 +37,6 @@
     load_optimizer: false,
 
     eval_every: 25,
-    save_every: 50,
+    save_every: 300,
 
 }
