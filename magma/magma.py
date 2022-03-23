@@ -294,13 +294,13 @@ class Magma(nn.Module):
 
         if input_embeddings is None:
             input_embeddings = self.image_prefix(images)
-        labels = build_labels(
-            input_embeddings, captions, self.eos_token, self.device
-        )  # build labels from input_embeddings
         # print(captions)
         if inference:
             return self.generate(input_embeddings)
         else:
+            labels = build_labels(
+                input_embeddings, captions, self.eos_token, self.device
+            )  # build labels from input_embeddings
             word_embeddings = self.word_embedding(captions)
 
             # print(input_embeddings)
