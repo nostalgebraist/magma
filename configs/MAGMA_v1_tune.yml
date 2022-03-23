@@ -15,7 +15,7 @@
     min_lr: 0.0,
     lr_decay_iters: 300000,
     warmup_num_steps: 100,
-    image_enc_lr: 1e-6,
+    image_enc_lr: 1.0e-4,
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
     image_size: 384,
