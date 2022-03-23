@@ -187,7 +187,7 @@ def configure_param_groups(model, config):
             image_ln_params = get_params_for_weight_decay_optimization(
                 model.image_prefix.ln, config
             )
-            image_proj_params += image_ln_params
+            image_proj_params["params"] += image_ln_params["params"]
 
         # get the params for the lm
         lm_params = get_params_for_weight_decay_optimization(model.lm, config)
