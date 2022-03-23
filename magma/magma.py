@@ -106,7 +106,7 @@ class Magma(nn.Module):
                     print(f'unfreezing {name}')
                     param.requires_grad = True
                 else:
-                    print(f'frozen {name}')
+                    # print(f'frozen {name}')
                     param.requires_grad = False
 
         if config.freeze_img_encoder:
@@ -401,7 +401,8 @@ class Magma(nn.Module):
             if k in adapter_map_sd:
                 model.adapter_map[k].load_state_dict(adapter_map_sd[k])
             else:
-                print(f'not in sd: {k}')
+                pass
+                # print(f'not in sd: {k}')
 
         model.add_adapters()
 
