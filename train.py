@@ -1,7 +1,6 @@
 import torch
 import os
 import deepspeed
-import deepspeed.engine
 import wandb
 from torch.utils.data import random_split, ConcatDataset
 from torch.optim import AdamW
