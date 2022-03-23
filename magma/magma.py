@@ -170,8 +170,6 @@ class Magma(nn.Module):
         for l in range(len(self.transformer)):
             if (l, 'mlp') in self.adapter_map:
                 adpt = self.adapter_map.pop((l, 'mlp'))
-                if self.mlp_adapter_added:
-                    raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
                 if isinstance(adpt, ParallelAdapterWrapper):
                     adapter_layer = adpt
@@ -186,8 +184,7 @@ class Magma(nn.Module):
                 setattr(self.transformer[l], ff_attr, adapter_layer)
             elif (l, 'attn') in self.adapter_map:
                 adpt = self.adapter_map.pop((l, 'attn'))
-                if self.attn_adapter_added:
-                    raise ValueError("Adapter layer already added")
+                adapter_layer = adpt
                 attn = getattr(self.transformer[l], attn_attr)
                 setattr(adapter_layer, 'module', attn)
                 setattr(self.transformer[l], attn_attr, adapter_layer)
