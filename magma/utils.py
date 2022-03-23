@@ -184,7 +184,7 @@ def configure_param_groups(model, config):
             model.image_prefix.enc, config
         )
         for pdict in image_enc_params:
-            pdict["lr"] = config.image_enc_lr
+            pdict["lr"] = float(config.image_enc_lr)
         image_proj_params = get_params_for_weight_decay_optimization(
             model.image_prefix.proj, config
         )
