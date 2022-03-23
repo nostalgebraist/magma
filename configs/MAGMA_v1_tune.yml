@@ -30,7 +30,7 @@
     eval_dataset_name: 'xmas_384_supplement_incremental1',
     eval_dataset_dir: 'dataset_magma',
 
-    optimizer_name: 'Adam'
+    optimizer_name: "Adam",
 
     ckpt_path: "magma_split_ckpt",
 
