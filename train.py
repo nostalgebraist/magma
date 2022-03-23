@@ -176,11 +176,11 @@ if __name__ == "__main__":
         total=config.train_steps,
         disable=not is_main(),
     )
-    wandb_init(
-        project=config.wandb_project,
-        name=config.name or wandb.util.generate_id(),
-        config=config,
-    )
+    # wandb_init(
+    #     project=config.wandb_project,
+    #     name=config.name or wandb.util.generate_id(),
+    #     config=config,
+    # )
 
     # training loop
     for i in pbar:
@@ -200,7 +200,7 @@ if __name__ == "__main__":
                 else config.lr
             )
             to_log = {"train/loss": loss, "train/lr": current_lr}
-            wandb_log(to_log, step=global_step)
+            # wandb_log(to_log, step=global_step)
 
         ##### Evaluation phase
         if global_step % config.eval_every == 0:
@@ -210,17 +210,17 @@ if __name__ == "__main__":
                 ##### eval step:
                 eval_loss = eval_step(config, eval_loader, model_engine)
 
-                wandb_log({"eval/loss": eval_loss}, step=global_step)
+                # wandb_log({"eval/loss": eval_loss}, step=global_step)
                 pbar.set_description(
                     f"evaluating... Step: {global_step} Eval Loss: {eval_loss}"
                 )
 
                 ##### inference:
                 image_grid, caption = inference_step(config, eval_loader, model_engine)
-                wandb_log(
-                    {"inference/image": wandb.Image(image_grid, caption=caption)},
-                    step=global_step,
-                )
+                # wandb_log(
+                #     {"inference/image": wandb.Image(image_grid, caption=caption)},
+                #     step=global_step,
+                # )
 
             model_engine.train()
 
