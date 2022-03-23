@@ -154,7 +154,7 @@ class Magma(nn.Module):
                         downsample_factor=downsample_factor,
                         **adapter_kwargs,
                     )
-                adapter_map[(l, 'mlp')] = adapter_layer
+                adapter_map[(l, 'attn')] = adapter_layer
         self.adapter_map.update(adapter_map)
 
     def add_adapters(
