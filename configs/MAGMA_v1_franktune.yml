@@ -5,17 +5,17 @@
         "mlp": {"adapter_type": "normal", "downsample_factor": 4},
         "attention": {"adapter_type": "normal", "downsample_factor": 8}
     },
-    freeze_img_encoder: true,
+    freeze_img_encoder: false,
     freeze_lm: true,
 
     # train settings
     batch_size: 8,
     train_steps: 150000,
-    lr: 1.0e-4,
+    lr: 2.0e-5,
     min_lr: 0.0,
     lr_decay_iters: 300000,
     warmup_num_steps: 100,
-    image_enc_lr: null,
+    image_enc_lr: 5e-7,
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
     image_size: 384,
@@ -30,9 +30,9 @@
     eval_dataset_name: 'xmas_384_supplement_incremental1',
     eval_dataset_dir: 'dataset_magma',
 
-    ckpt_path: "magma_split_ckpt",
+    ckpt_path: "magma_split_ckpt_frank",
 
-    save: "magma_tune_v0",
+    save: "magma_tune_frank_v0",
     load: "",
     load_optimizer: false,
 
