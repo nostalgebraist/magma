@@ -234,6 +234,8 @@ def configure_param_groups(model, config):
             d[key]["weight_decay"] = wd
     all_params = list(d.values())
 
+    all_params = [g for g in all_params if len(g['params']) > 0]
+
     print('---')
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
@@ -247,8 +249,8 @@ def configure_param_groups(model, config):
     param_dict = {
         pn: p for pn, p in model.named_parameters() if p is not None and p.requires_grad
     }
-    # for pn in param_dict:
-    #     print(pn)
+    for pn in param_dict:
+        print(pn)
     print(("n_params", n_params))
     assert n_params == len(
         param_dict
