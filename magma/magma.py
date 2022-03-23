@@ -281,14 +281,16 @@ class Magma(nn.Module):
         captions: Optional[TensorType["b", "seq"]] = None,
         output_hidden_states: bool = False,
         input_embeddings: TensorType["b", "s", "d"] = None,
+        inference=False
     ) -> ModelOutput:
-        assert captions is not None, "Must provide captions in training"
+        if not inference:
+            assert captions is not None, "Must provide captions in training"
+            assert (
+                captions.shape[1] == self.seq_len
+            ), f"in training, captions should be padded to sequence length ({self.seq_len}), but are length {captions.shape[1]}"
         assert any([i is not None for i in [images, input_embeddings]]) and not all(
             [i is not None for i in [images, input_embeddings]]
         ), "Pass in either images, or input embeddings, not both."
-        assert (
-            captions.shape[1] == self.seq_len
-        ), f"in training, captions should be padded to sequence length ({self.seq_len}), but are length {captions.shape[1]}"
 
         if input_embeddings is None:
             input_embeddings = self.image_prefix(images)
@@ -296,35 +298,38 @@ class Magma(nn.Module):
             input_embeddings, captions, self.eos_token, self.device
         )  # build labels from input_embeddings
         # print(captions)
-        word_embeddings = self.word_embedding(captions)
+        if inference:
+            return self.generate(input_embeddings)
+        else:
+            word_embeddings = self.word_embedding(captions)
 
-        # print(input_embeddings)
-        # print(word_embeddings)
+            # print(input_embeddings)
+            # print(word_embeddings)
 
-        # join together
-        input_embeddings = torch.cat(
-            (
-                input_embeddings,
-                word_embeddings[:, : -input_embeddings.shape[1], :],
-            ),  # remove padding in the word embedding before concatenating
-            dim=1,
-        )
+            # join together
+            input_embeddings = torch.cat(
+                (
+                    input_embeddings,
+                    word_embeddings[:, : -input_embeddings.shape[1], :],
+                ),  # remove padding in the word embedding before concatenating
+                dim=1,
+            )
 
-        # forward joined embeddings through lm
-        lm_outputs = self.lm(
-            inputs_embeds=input_embeddings,
-            labels=labels,
-            output_hidden_states=output_hidden_states,
-        )
-        # print(lm_outputs.loss)
-        # print(lm_outputs.logits)
+            # forward joined embeddings through lm
+            lm_outputs = self.lm(
+                inputs_embeds=input_embeddings,
+                labels=labels,
+                output_hidden_states=output_hidden_states,
+            )
+            # print(lm_outputs.loss)
+            # print(lm_outputs.logits)
 
-        # for l in self.transformer:
-        #     g = l.mlp[1].adapter[2].weight.grad
-        #     if g is not None:
-        #         print(g.norm().item())
+            # for l in self.transformer:
+            #     g = l.mlp[1].adapter[2].weight.grad
+            #     if g is not None:
+            #         print(g.norm().item())
 
-        return lm_outputs
+            return lm_outputs
 
     @classmethod
     def from_checkpoint(cls, config_path, checkpoint_path, device = 'cpu'):
