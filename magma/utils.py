@@ -217,7 +217,7 @@ def configure_param_groups(model, config):
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
         print(len(g['params']))
-        print(('lr', g.get('lr')))
+        print(('lr', g.get('lr'), type(g.get('lr'))))
         # c = Counter(type(p['weight_decay']) for p in g["params"])
         print(('wd', g.get('weight_decay')))
     print('---')
@@ -247,7 +247,7 @@ def configure_param_groups(model, config):
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
         print(len(g['params']))
-        print(('lr', g.get('lr')))
+        print(('lr', g.get('lr'), type(g.get('lr'))))
         # c = Counter(type(p['weight_decay']) for p in g["params"])
         print(('wd', g.get('weight_decay')))
     print('---')
