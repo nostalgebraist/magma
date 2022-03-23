@@ -9,7 +9,7 @@
     freeze_lm: true,
 
     # train settings
-    batch_size: 8,
+    batch_size: 16,
     train_steps: 150000,
     lr: 1.0e-4,
     min_lr: 0.0,
@@ -20,7 +20,7 @@
     image_embed_dropout_prob: 0.0,
     image_size: 384,
 
-    gradient_accumulation_steps: 8,
+    gradient_accumulation_steps: 16,
     zero_stage: 0,
     gradient_clipping: 1.0,
 
@@ -37,6 +37,7 @@
     load_optimizer: false,
 
     eval_every: 25,
-    save_every: 50,
+    eval_steps: 300,
+    save_every: 300,
 
 }
