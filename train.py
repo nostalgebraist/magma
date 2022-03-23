@@ -1,6 +1,7 @@
 import torch
 import os
 import deepspeed
+import deepspeed.engine
 import wandb
 from torch.utils.data import random_split, ConcatDataset
 from torch.optim import AdamW
@@ -30,6 +31,43 @@ from magma.train_loop import (
     inference_step,
     train_step,
 )
+from deepspeed.utils import log_dist
+
+
+# TODO: hack _save_checkpoint and _load_checkpoint
+# def _save_checkpoint(self, save_dir, tag, client_state={}):
+#
+#     save_path = self._get_ckpt_name(save_dir, tag)
+#     # A hack to save the checkpointing directory. Pipeline parallelism overrides
+#     # module_state_dict() and uses this path to save the model. module_state_dict()
+#     # then instead just returns None.
+#     self._curr_ckpt_path = os.path.join(save_dir, tag)
+#
+#     state = dict(module=self.module_state_dict(),
+#                  buffer_names=self._get_buffer_names(),
+#                  optimizer=self.optimizer.state_dict()
+#                  if self.optimizer and not self.zero_optimization() else None,
+#                  param_shapes=self._get_zero_param_shapes()
+#                  if self.optimizer and self.zero_optimization() else None,
+#                  lr_scheduler=self.lr_scheduler.state_dict()
+#                  if self.lr_scheduler is not None else None,
+#                  sparse_tensor_module_names=self.sparse_tensor_module_names,
+#                  skipped_steps=self.skipped_steps,
+#                  global_steps=self.global_steps,
+#                  global_samples=self.global_samples,
+#                  dp_world_size=self.dp_world_size,
+#                  mp_world_size=self.mp_world_size,
+#                  ds_config=self.config,
+#                  ds_version=version)
+#     state.update(client_state)
+#
+#     log_dist(message=f'Saving model checkpoint: {save_path}', ranks=[0, 1])
+#     torch.save(state, save_path)
+#     self._curr_save_path = None
+#
+#
+# deepspeed.engine.DeepSpeedEngine._save_checkpoint = _save_checkpoint
+
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
     if isinstance(dataset_dir, (list, tuple)):
