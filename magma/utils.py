@@ -236,6 +236,10 @@ def configure_param_groups(model, config):
 
     all_params = [g for g in all_params if len(g['params']) > 0]
 
+    if config.weight_decay == 0.0:
+        for g in all_params:
+            del g['weight_decay']
+
     print('---')
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
