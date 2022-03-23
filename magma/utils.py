@@ -212,8 +212,10 @@ def configure_param_groups(model, config):
 
     print('---')
     for g in all_params:
-        c = Counter(type(p) for p in g["params"])
-        print(c)
+        c = Counter(type(p['lr']) for p in g["params"])
+        print(('lr', c))
+        c = Counter(type(p['weight_decay']) for p in g["params"])
+        print(('wd', c))
     print('---')
 
     # merge param dicts with shared lr / wd values
@@ -233,8 +235,10 @@ def configure_param_groups(model, config):
 
     print('---')
     for g in all_params:
-        c = Counter(type(p) for p in g["params"])
-        print(c)
+        c = Counter(type(p['lr']) for p in g["params"])
+        print(('lr', c))
+        c = Counter(type(p['weight_decay']) for p in g["params"])
+        print(('wd', c))
     print('---')
 
     n_params = sum([len(d["params"]) for d in all_params])
