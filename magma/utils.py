@@ -213,6 +213,7 @@ def configure_param_groups(model, config):
     print('---')
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
+        print(len(g['params']))
         print(('lr', g.get('lr')))
         # c = Counter(type(p['weight_decay']) for p in g["params"])
         print(('wd', g.get('weight_decay')))
@@ -236,6 +237,7 @@ def configure_param_groups(model, config):
     print('---')
     for g in all_params:
         # c = Counter(type(p['lr']) for p in g["params"])
+        print(len(g['params']))
         print(('lr', g.get('lr')))
         # c = Counter(type(p['weight_decay']) for p in g["params"])
         print(('wd', g.get('weight_decay')))
@@ -245,8 +247,8 @@ def configure_param_groups(model, config):
     param_dict = {
         pn: p for pn, p in model.named_parameters() if p is not None and p.requires_grad
     }
-    for pn in param_dict:
-        print(pn)
+    # for pn in param_dict:
+    #     print(pn)
     print(("n_params", n_params))
     assert n_params == len(
         param_dict
