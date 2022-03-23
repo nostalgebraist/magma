@@ -178,20 +178,16 @@ def configure_param_groups(model, config):
         )
         for pdict in image_enc_params:
             pdict["lr"] = config.image_enc_lr
-
-        image_pref_params = get_params_for_weight_decay_optimization(
-            model.image_prefix, config
+        image_proj_params = get_params_for_weight_decay_optimization(
+            model.image_prefix.proj, config
         )
-        # image_proj_params = get_params_for_weight_decay_optimization(
-        #     model.image_prefix.proj, config
-        # )
-        #
-        # # get the params for layernorm if it exists
-        # if config.use_image_embed_layernorm:
-        #     image_ln_params = get_params_for_weight_decay_optimization(
-        #         model.image_prefix.ln, config
-        #     )
-        #     image_proj_params += image_ln_params
+
+        # get the params for layernorm if it exists
+        if config.use_image_embed_layernorm:
+            image_ln_params = get_params_for_weight_decay_optimization(
+                model.image_prefix.ln, config
+            )
+            image_proj_params += image_ln_params
 
         # get the params for the lm
         lm_params = get_params_for_weight_decay_optimization(model.lm, config)
@@ -204,7 +200,7 @@ def configure_param_groups(model, config):
             )
 
         all_params = []
-        for p in image_enc_params + lm_params + image_pref_params + class_params:
+        for p in image_enc_params + lm_params + image_proj_params + class_params:
             if p["params"]:
                 all_params.append(p)
     else:
