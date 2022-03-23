@@ -11,6 +11,8 @@ from collections import defaultdict
 from torchtyping import TensorType
 import gdown
 
+from collections import Counter
+
 
 def is_main():
     if dist.is_initialized():
@@ -158,6 +160,8 @@ def get_params_for_weight_decay_optimization(module, config):
     ) == len(
         param_dict.keys()
     ), "Number of params in both groups != total number of trainable params"
+    c = Counter(type(p) for p in no_weight_decay_params["params"])
+    print(c)
     if config.weight_decay == 0.0:
         # only return a single param group if no weight decay is being used anyway
         return [no_weight_decay_params]
