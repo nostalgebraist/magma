@@ -136,12 +136,19 @@ if __name__ == "__main__":
     print_main(f"Loaded train dataset with {len(train_dataset)} samples")
     print_main(f"Loaded eval dataset with {len(eval_dataset)} samples")
 
-    opt = AdamW(
-        trainable_parameters,
-        config.lr,
-        betas=(0.9, 0.95),
-        weight_decay=config.weight_decay,
-    )
+    if config.weight_decay == 0.0:
+        opt = AdamW(
+            trainable_parameters,
+            config.lr,
+            betas=(0.9, 0.95),
+        )
+    else:
+        opt = AdamW(
+            trainable_parameters,
+            config.lr,
+            betas=(0.9, 0.95),
+            weight_decay=config.weight_decay,
+        )
 
     model_engine, opt, train_loader, lr_scheduler = deepspeed.initialize(
         args=args,
