@@ -20,7 +20,7 @@
     image_embed_dropout_prob: 0.0,
     image_size: 384,
 
-    use_torch_amp: true,
+    use_torch_amp: false,
     use_torch_grad_scaler: false,
 
     gradient_accumulation_steps: 32,
