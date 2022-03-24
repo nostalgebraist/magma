@@ -42,14 +42,15 @@ def remove_tokens_after_eos(tensor, eos_token, image_token):
 
 @torch.no_grad()
 def generate(
-    model: "Magma",
-    embeddings: TensorType["b", "s", "d"],
+    model,
+    embeddings,
     max_steps: int = 100,
     temperature: float = 0.7,
     top_k: int = 0,
     top_p: float = 0.9,
     eos_token: int = None,
     decode: bool = True,
+    no_period=False,
 ) -> Union[List[str], TensorType["b", "s"]]:
     """
     Generates captions for a batch of embeddings.
@@ -107,6 +108,9 @@ def generate(
         out = torch.cat((out, next_token), dim=-1)
 
         if eos_token is not None and (next_token == eos_token).all():
+            break
+
+        if no_period and (out == 13).any(axis=1).all(axis=0):
             break
 
     if decode:
