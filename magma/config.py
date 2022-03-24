@@ -124,7 +124,8 @@ class MultimodalConfig:
                 },
             }
         self.deepspeed_config_params = {
-            "train_batch_size": self.batch_size,
+            # "train_batch_size": self.batch_size,
+            "train_micro_batch_size_per_gpu": self.batch_size // self.gradient_accumulation_steps,
             "gradient_accumulation_steps": self.gradient_accumulation_steps,
             "gradient_clipping": self.gradient_clipping,
             "fp16": {"enabled": True, "loss_scale_window": 250, "initial_scale_power": 13},
