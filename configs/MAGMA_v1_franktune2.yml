@@ -36,7 +36,7 @@
     load: "",
     load_optimizer: false,
 
-    eval_batch_size: 4,
+    eval_batch_size: 2,
     eval_every: 1,
     eval_steps: 200,
     save_every: 300,
