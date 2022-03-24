@@ -118,7 +118,7 @@ if __name__ == "__main__":
     config_ = load_config(args.config)
     ckpt_path = config_.get('ckpt_path')
 
-    if ckpt_path and not config.get('load'):
+    if ckpt_path and not config_.get('load'):
         print('loading split')
         model = Magma.from_split_checkpoint(args.config, ckpt_path, os.path.join(ckpt_path, 'lm.pt'), device='cuda:0')
     else:
