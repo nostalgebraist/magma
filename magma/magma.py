@@ -50,8 +50,8 @@ class Magma(nn.Module):
         self.eos_token = self.tokenizer.eos_token_id
         self.lm.resize_token_embeddings(len(self.tokenizer))
         self.lm.config.pad_token_id = self.tokenizer.eos_token_id
-        self.word_embedding = self.lm.transformer.wte.to(device)
-        self.transformer = self.lm.transformer.h
+        # self.word_embedding = self.lm.transformer.wte.to(device)
+        # self.transformer = self.lm.transformer.h
 
         # adapter settings
         self.mlp_adapter_added, self.attn_adapter_added = False, False
@@ -112,6 +112,14 @@ class Magma(nn.Module):
         if config.freeze_img_encoder:
             for param in self.image_prefix.enc.parameters():
                 param.requires_grad = False
+
+    @property
+    def word_embedding(self):
+        return self.lm.transformer.wte
+
+    @property
+    def transformer(self):
+        return self.lm.transformer.h
 
     def build_adapters(
         self,
