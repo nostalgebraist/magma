@@ -71,7 +71,7 @@ def __check_params(model, dtype):
     return
 
 from deepspeed.runtime.engine import DeepSpeedEngine
-DeepSpeedEngine.__check_params = __check_params
+DeepSpeedEngine.__check_params = staticmethod(__check_params)
 
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
@@ -172,7 +172,9 @@ if __name__ == "__main__":
     eval_loader = cycle(model_engine.deepspeed_io(eval_dataset, batch_size=config.eval_batch_size))
     train_loader = cycle(train_loader)
 
-    grad_scaler = torch.cuda.amp.GradScaler(init_scale=float(2**12), growth_interval=250)
+    grad_scaler = None
+    if config.use_torch_grad_scaler:
+        grad_scaler = torch.cuda.amp.GradScaler(init_scale=float(2**12), growth_interval=250)
 
     # initialize training
     global_step = 0
