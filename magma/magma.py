@@ -409,7 +409,7 @@ class Magma(nn.Module):
         print(model.lm.transformer.wte.weight)
 
         print('model.lm.transformer.wte.weight in sd')
-        print(sd['lm.transformer.wte.weight'])
+        print(lm_state_dict['transformer.wte.weight'])
 
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_ckpt)
