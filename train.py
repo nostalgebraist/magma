@@ -206,7 +206,8 @@ if __name__ == "__main__":
                 if lr_scheduler is not None
                 else config.lr
             )
-            to_log = {"train/loss": loss, "train/lr": current_lr}
+            examples_processed = global_step * config.batch_size
+            to_log = {"train/loss": loss, "train/lr": current_lr, 'train/examples_processed': examples_processed}
             wandb_log(to_log, step=global_step)
 
         ##### Evaluation phase
@@ -217,7 +218,8 @@ if __name__ == "__main__":
                 ##### eval step:
                 eval_loss = eval_step(config, eval_loader, model_engine)
 
-                wandb_log({"eval/loss": eval_loss}, step=global_step)
+                examples_processed = global_step * config.batch_size
+                wandb_log({"eval/loss": eval_loss, 'eval/examples_processed': examples_processed}, step=global_step)
                 pbar.set_description(
                     f"evaluating... Step: {global_step} Eval Loss: {eval_loss}"
                 )
@@ -226,7 +228,8 @@ if __name__ == "__main__":
                 try:
                     image_grid, caption = inference_step(config, eval_loader, model_engine)
                     wandb_log(
-                        {"inference/image": wandb.Image(image_grid, caption=caption)},
+                        {"inference/image": wandb.Image(image_grid, caption=caption),
+                         'inference/examples_processed': examples_processed},
                         step=global_step,
                     )
                 except RuntimeError:
