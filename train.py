@@ -169,6 +169,8 @@ if __name__ == "__main__":
         collate_fn=partial(collate_fn, seq_len=model.seq_len),
         config_params=config.deepspeed_config_params,
     )
+    print(model_engine.optimizer.optimizer.param_groups)
+
     eval_loader = cycle(model_engine.deepspeed_io(eval_dataset, batch_size=config.eval_batch_size))
     train_loader = cycle(train_loader)
 
