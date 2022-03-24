@@ -354,6 +354,9 @@ class Magma(nn.Module):
         print('model.lm.transformer.wte.weight before load')
         print(model.lm.transformer.wte.weight)
 
+        print('model.lm.transformer.wte.weight in sd')
+        print(sd['lm.transformer.wte.weight'])
+
         keyview = model.load_state_dict(sd, strict=False)
         print(keyview)
 
