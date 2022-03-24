@@ -349,6 +349,10 @@ class Magma(nn.Module):
         if "module" in sd.keys():
             sd = sd["module"]
 
+        if 'word_embedding.weight' in sd:
+            del sd['word_embedding.weight']
+            print('removed word_embedding.weight')
+
         print_main('loading checkpoint magma')
 
         print('model.lm.transformer.wte.weight before load')
@@ -401,6 +405,12 @@ class Magma(nn.Module):
         n_emb_ckpt = lm_state_dict['transformer.wte.weight'].shape[0]
         n_emb_us = model.lm.transformer.wte.weight.shape[0]
 
+        print('model.lm.transformer.wte.weight before load')
+        print(model.lm.transformer.wte.weight)
+
+        print('model.lm.transformer.wte.weight in sd')
+        print(sd['lm.transformer.wte.weight'])
+
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_ckpt)
 
@@ -408,6 +418,9 @@ class Magma(nn.Module):
 
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_us)
+
+        print('model.lm.transformer.wte.weight after load')
+        print(model.lm.transformer.wte.weight)
 
         model.image_prefix.load_state_dict(torch.load(f'{path}/image_prefix.pt'))
 
