@@ -70,8 +70,8 @@ from deepspeed.utils import log_dist
 def __check_params(model, dtype):
     return
 
-
-deepspeed.runtime.engine.DeepSpeedEngine.__check_params = __check_params
+from deepspeed.runtime.engine import DeepSpeedEngine
+DeepSpeedEngine.__check_params = __check_params
 
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
@@ -157,6 +157,8 @@ if __name__ == "__main__":
             betas=(0.9, 0.95),
             weight_decay=config.weight_decay,
         )
+
+    print(DeepSpeedEngine.__check_params)
 
     model_engine, opt, train_loader, lr_scheduler = deepspeed.initialize(
         args=args,
