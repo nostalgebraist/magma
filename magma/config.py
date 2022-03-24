@@ -130,7 +130,7 @@ class MultimodalConfig:
             "train_micro_batch_size_per_gpu": self.batch_size // self.gradient_accumulation_steps,
             "gradient_accumulation_steps": self.gradient_accumulation_steps,
             "gradient_clipping": self.gradient_clipping,
-            "fp16": {"enabled": True, "loss_scale_window": 250, "initial_scale_power": 12},
+            "fp16": {"enabled": not self.use_torch_amp, "loss_scale_window": 250, "initial_scale_power": 12},
             "scheduler": self.scheduler_dict,
             "zero_optimization": {
                 "stage": self.zero_stage,
