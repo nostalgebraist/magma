@@ -4,7 +4,7 @@ from .utils import reduce_losses, to_cuda_half
 from torchvision.utils import make_grid
 
 
-def train_step(config, train_loader, model_engine, use_torch_amp=False):
+def train_step(config, train_loader, model_engine, use_torch_amp=False, grad_scaler=None):
     losses = []
 
     for _ in range(config.gradient_accumulation_steps):
@@ -17,9 +17,14 @@ def train_step(config, train_loader, model_engine, use_torch_amp=False):
         loss = outputs.loss
         losses.append(loss)
         model_engine.backward(loss.float())
-        model_engine.step()
+        if use_torch_amp and (grad_scaler is not None):
+            model_engine.backward(grad_scaler.scale(loss))
+            grad_scaler.step(model_engine)
+            grad_scaler.update()
+        else:
+            model_engine.step()
 
-    return reduce_losses(torch.mean(torch.stack(losses))).item()
+    return reduce_losses(torch.mean(torch.stack(losses))).item(), grad_scaler
 
 
 def train_step_classification(config, train_loader, model_engine, return_accuracy=True):

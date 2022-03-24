@@ -162,6 +162,8 @@ if __name__ == "__main__":
     eval_loader = cycle(model_engine.deepspeed_io(eval_dataset, batch_size=config.eval_batch_size))
     train_loader = cycle(train_loader)
 
+    grad_scaler = torch.cuda.amp.GradScaler(init_scale=float(2**12), growth_interval=250)
+
     # initialize training
     global_step = 0
     if config.load:
@@ -195,7 +197,7 @@ if __name__ == "__main__":
             break
 
         ##### train step
-        loss = train_step(config, train_loader, model_engine, use_torch_amp=config.use_torch_amp)
+        loss, grad_scaler = train_step(config, train_loader, model_engine, use_torch_amp=config.use_torch_amp, grad_scaler=grad_scaler)
 
         global_step += 1
 
