@@ -67,6 +67,12 @@ from deepspeed.utils import log_dist
 #
 # deepspeed.engine.DeepSpeedEngine._save_checkpoint = _save_checkpoint
 
+def __check_params(model, dtype):
+    return
+
+
+deepspeed.engine.DeepSpeedEngine.__check_params = __check_params
+
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
     if isinstance(dataset_dir, (list, tuple)):
