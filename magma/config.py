@@ -56,6 +56,7 @@ class MultimodalConfig:
     train_dataset_dir: str = "/data/coco_data"
     eval_dataset_dir: str = "/data/coco_data"
     eval_dataset_pct: float = 0.1
+    eval_batch_size: int = 1
 
     # Model architecture:
     # ------------------------------------------------------------

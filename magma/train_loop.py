@@ -55,6 +55,9 @@ def eval_step(config, eval_loader, model_engine):
             images = torch.zeros_like(images)
         outputs = model_engine(images, captions)
         loss = outputs.loss
+        if torch.isnan(loss).any():
+            print('found nan, skipping')
+            continue
         losses.append(loss)
 
     return reduce_losses(torch.mean(torch.stack(losses))).item()

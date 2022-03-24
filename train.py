@@ -159,7 +159,7 @@ if __name__ == "__main__":
         collate_fn=partial(collate_fn, seq_len=model.seq_len),
         config_params=config.deepspeed_config_params,
     )
-    eval_loader = cycle(model_engine.deepspeed_io(eval_dataset))
+    eval_loader = cycle(model_engine.deepspeed_io(eval_dataset, batch_size=eval_batch_size))
     train_loader = cycle(train_loader)
 
     # initialize training
