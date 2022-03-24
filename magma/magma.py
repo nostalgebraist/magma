@@ -350,8 +350,16 @@ class Magma(nn.Module):
             sd = sd["module"]
 
         print_main('loading checkpoint magma')
+
+        print('model.lm.transformer.wte.weight before load')
+        print(model.lm.transformer.wte.weight)
+
         keyview = model.load_state_dict(sd, strict=False)
         print(keyview)
+
+        print('model.lm.transformer.wte.weight after load')
+        print(model.lm.transformer.wte.weight)
+
         print_main("magma model successfully loaded")
 
         model.half().to(device)
