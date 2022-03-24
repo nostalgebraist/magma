@@ -11,7 +11,7 @@
     # train settings
     batch_size: 8,
     train_steps: 150000,
-    lr: 5.0e-5,
+    lr: 2.0e-4,
     min_lr: 0.0,
     lr_decay_iters: 300000,
     warmup_num_steps: 100,
