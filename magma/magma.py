@@ -296,7 +296,7 @@ class Magma(nn.Module):
             input_embeddings = self.image_prefix(images)
         # print(captions)
         if inference:
-            return self.generate(input_embeddings, temperature=0.01)
+            return self.generate(input_embeddings, temperature=1.0)
         else:
             labels = build_labels(
                 input_embeddings, captions, self.eos_token, self.device
