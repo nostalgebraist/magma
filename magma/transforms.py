@@ -71,7 +71,7 @@ def get_transforms(
     base_transforms = [
         T.Lambda(lambda img: img.convert("RGB") if img.mode != "RGB" else img),
         RandCropResize(image_size),
-        T.RandomHorizontalFlip(p=0.5),
+        # T.RandomHorizontalFlip(p=0.5),
     ]
     if use_extra_transforms:
         extra_transforms = [T.ColorJitter(0.1, 0.1, 0.1, 0.05)]

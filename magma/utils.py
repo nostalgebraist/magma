@@ -11,6 +11,8 @@ from collections import defaultdict
 from torchtyping import TensorType
 import gdown
 
+from collections import Counter
+
 
 def is_main():
     if dist.is_initialized():
@@ -45,7 +47,10 @@ def get_tokenizer(name="gpt2", sequence_length=2048):
     Gets tokenizer for LM
     """
     if name == "gpt2":
-        tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        try:
+            tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        except:
+            tokenizer = GPT2TokenizerFast.from_pretrained("gpt2", local_files_only=True)
         tokenizer.pad_token_id = tokenizer.eos_token
         tokenizer.padding_side = "right"
         tokenizer.model_max_length = sequence_length
@@ -69,9 +74,9 @@ def parse_args():
         default=-1,
         help="local rank passed from distributed launcher",
     )
-    parser.add_argument(
-        "--ckpt_path", type=str, required=False, help="split ckpt path for finetuning", default=""
-    )
+    # parser.add_argument(
+    #     "--ckpt_path", type=str, required=False, help="split ckpt path for finetuning", default=""
+    # )
     deepspeed.add_config_arguments(parser)
 
     args = parser.parse_args()
@@ -158,6 +163,8 @@ def get_params_for_weight_decay_optimization(module, config):
     ) == len(
         param_dict.keys()
     ), "Number of params in both groups != total number of trainable params"
+    c = Counter(type(p) for p in no_weight_decay_params["params"])
+    print(c)
     if config.weight_decay == 0.0:
         # only return a single param group if no weight decay is being used anyway
         return [no_weight_decay_params]
@@ -177,7 +184,7 @@ def configure_param_groups(model, config):
             model.image_prefix.enc, config
         )
         for pdict in image_enc_params:
-            pdict["lr"] = config.image_enc_lr
+            pdict["lr"] = float(config.image_enc_lr)
         image_proj_params = get_params_for_weight_decay_optimization(
             model.image_prefix.proj, config
         )
@@ -206,6 +213,15 @@ def configure_param_groups(model, config):
     else:
         all_params = get_params_for_weight_decay_optimization(model, config)
 
+    print('---')
+    for g in all_params:
+        # c = Counter(type(p['lr']) for p in g["params"])
+        print(len(g['params']))
+        print(('lr', g.get('lr'), type(g.get('lr'))))
+        # c = Counter(type(p['weight_decay']) for p in g["params"])
+        print(('wd', g.get('weight_decay')))
+    print('---')
+
     # merge param dicts with shared lr / wd values
     d = defaultdict(dict)
     for param_group in all_params:
@@ -221,10 +237,28 @@ def configure_param_groups(model, config):
             d[key]["weight_decay"] = wd
     all_params = list(d.values())
 
+    all_params = [g for g in all_params if len(g['params']) > 0]
+
+    if config.weight_decay == 0.0:
+        for g in all_params:
+            del g['weight_decay']
+
+    print('---')
+    for g in all_params:
+        # c = Counter(type(p['lr']) for p in g["params"])
+        print(len(g['params']))
+        print(('lr', g.get('lr'), type(g.get('lr'))))
+        # c = Counter(type(p['weight_decay']) for p in g["params"])
+        print(('wd', g.get('weight_decay')))
+    print('---')
+
     n_params = sum([len(d["params"]) for d in all_params])
     param_dict = {
         pn: p for pn, p in model.named_parameters() if p is not None and p.requires_grad
     }
+    for pn in param_dict:
+        print(pn)
+    print(("n_params", n_params))
     assert n_params == len(
         param_dict
     ), f"Some parameters are missing from param groups ({n_params} | {len(param_dict)})"

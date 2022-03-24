@@ -12,7 +12,10 @@ LANGUAGE_MODELS = [
 
 
 def gptj_config():
-    config = AutoConfig.from_pretrained("EleutherAI/gpt-neo-2.7B")
+    try:
+        config = AutoConfig.from_pretrained("EleutherAI/gpt-neo-2.7B")
+    except:
+        config = AutoConfig.from_pretrained("EleutherAI/gpt-neo-2.7B", local_files_only=True)
     config.attention_layers = ["global"] * 28
     config.attention_types = [["global"], 28]
     config.num_layers = 28

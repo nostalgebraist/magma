@@ -96,8 +96,18 @@ class Magma(nn.Module):
         # freeze parameters
         if config.freeze_lm:
             for name, param in self.lm.named_parameters():  # freeze lm weights
+                unfreeze = False
                 if config.adapter_config and "adapter" in name:
+                    i = int(name.split('.')[2])
+                    if i >= 0:
+                        unfreeze = True
+
+                if unfreeze:
+                    print(f'unfreezing {name}')
                     param.requires_grad = True
+                else:
+                    # print(f'frozen {name}')
+                    param.requires_grad = False
 
         if config.freeze_img_encoder:
             for param in self.image_prefix.enc.parameters():
@@ -144,12 +154,12 @@ class Magma(nn.Module):
                     )
                 else:
                     adapter_layer = AdapterWrapper(
-                        attn_block=None,
+                        module=None,
                         dim=self.lm.config.hidden_size,
                         downsample_factor=downsample_factor,
                         **adapter_kwargs,
                     )
-                adapter_map[(l, 'mlp')] = adapter_layer
+                adapter_map[(l, 'attn')] = adapter_layer
         self.adapter_map.update(adapter_map)
 
     def add_adapters(
@@ -160,8 +170,6 @@ class Magma(nn.Module):
         for l in range(len(self.transformer)):
             if (l, 'mlp') in self.adapter_map:
                 adpt = self.adapter_map.pop((l, 'mlp'))
-                if self.mlp_adapter_added:
-                    raise ValueError("Adapter layer already added")
                 mlp = getattr(self.transformer[l], ff_attr)
                 if isinstance(adpt, ParallelAdapterWrapper):
                     adapter_layer = adpt
@@ -174,10 +182,9 @@ class Magma(nn.Module):
                         ]
                     )
                 setattr(self.transformer[l], ff_attr, adapter_layer)
-            elif (l, 'attn') in self.adapter_map:
+            if (l, 'attn') in self.adapter_map:
                 adpt = self.adapter_map.pop((l, 'attn'))
-                if self.attn_adapter_added:
-                    raise ValueError("Adapter layer already added")
+                adapter_layer = adpt
                 attn = getattr(self.transformer[l], attn_attr)
                 setattr(adapter_layer, 'module', attn)
                 setattr(self.transformer[l], attn_attr, adapter_layer)
@@ -274,39 +281,55 @@ class Magma(nn.Module):
         captions: Optional[TensorType["b", "seq"]] = None,
         output_hidden_states: bool = False,
         input_embeddings: TensorType["b", "s", "d"] = None,
+        inference=False
     ) -> ModelOutput:
-        assert captions is not None, "Must provide captions in training"
+        if not inference:
+            assert captions is not None, "Must provide captions in training"
+            assert (
+                captions.shape[1] == self.seq_len
+            ), f"in training, captions should be padded to sequence length ({self.seq_len}), but are length {captions.shape[1]}"
         assert any([i is not None for i in [images, input_embeddings]]) and not all(
             [i is not None for i in [images, input_embeddings]]
         ), "Pass in either images, or input embeddings, not both."
-        assert (
-            captions.shape[1] == self.seq_len
-        ), f"in training, captions should be padded to sequence length ({self.seq_len}), but are length {captions.shape[1]}"
 
         if input_embeddings is None:
             input_embeddings = self.image_prefix(images)
-        labels = build_labels(
-            input_embeddings, captions, self.eos_token, self.device
-        )  # build labels from input_embeddings
-        word_embeddings = self.word_embedding(captions)
+        # print(captions)
+        if inference:
+            return self.generate(input_embeddings, temperature=0.01)
+        else:
+            labels = build_labels(
+                input_embeddings, captions, self.eos_token, self.device
+            )  # build labels from input_embeddings
+            word_embeddings = self.word_embedding(captions)
 
-        # join together
-        input_embeddings = torch.cat(
-            (
-                input_embeddings,
-                word_embeddings[:, : -input_embeddings.shape[1], :],
-            ),  # remove padding in the word embedding before concatenating
-            dim=1,
-        )
+            # print(input_embeddings)
+            # print(word_embeddings)
 
-        # forward joined embeddings through lm
-        lm_outputs = self.lm(
-            inputs_embeds=input_embeddings,
-            labels=labels,
-            output_hidden_states=output_hidden_states,
-        )
+            # join together
+            input_embeddings = torch.cat(
+                (
+                    input_embeddings,
+                    word_embeddings[:, : -input_embeddings.shape[1], :],
+                ),  # remove padding in the word embedding before concatenating
+                dim=1,
+            )
 
-        return lm_outputs
+            # forward joined embeddings through lm
+            lm_outputs = self.lm(
+                inputs_embeds=input_embeddings,
+                labels=labels,
+                output_hidden_states=output_hidden_states,
+            )
+            # print(lm_outputs.loss)
+            # print(lm_outputs.logits)
+
+            # for l in self.transformer:
+            #     g = l.mlp[1].adapter[2].weight.grad
+            #     if g is not None:
+            #         print(g.norm().item())
+
+            return lm_outputs
 
     @classmethod
     def from_checkpoint(cls, config_path, checkpoint_path, device = 'cpu'):
@@ -357,7 +380,6 @@ class Magma(nn.Module):
 
         model.detach_adapters()
 
-
         if isinstance(lm_path_or_state_dict, str):
             # path
             lm_state_dict = torch.load(lm_path_or_state_dict, map_location=torch.device("cpu"))
@@ -380,7 +402,11 @@ class Magma(nn.Module):
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
         for k in model.adapter_map:
             # print(f'loading sd for {k}')  # debug
-            model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+            if k in adapter_map_sd:
+                model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+            else:
+                pass
+                # print(f'not in sd: {k}')
 
         model.add_adapters()
 
