@@ -350,7 +350,8 @@ class Magma(nn.Module):
             sd = sd["module"]
 
         print_main('loading checkpoint magma')
-        model.load_state_dict(sd, strict=False)
+        keyview = model.load_state_dict(sd, strict=False)
+        print(keyview)
         print_main("magma model successfully loaded")
 
         model.half().to(device)
@@ -401,12 +402,12 @@ class Magma(nn.Module):
 
         adapter_map_sd = torch.load(f'{path}/adapter_map.pt')
         for k in model.adapter_map:
-            # print(f'loading sd for {k}')  # debug
+            print(f'loading sd for {k}')  # debug
             if k in adapter_map_sd:
                 model.adapter_map[k].load_state_dict(adapter_map_sd[k])
             else:
                 pass
-                # print(f'not in sd: {k}')
+                print(f'not in sd: {k}')
 
         model.add_adapters()
 
