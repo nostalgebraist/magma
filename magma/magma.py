@@ -103,7 +103,7 @@ class Magma(nn.Module):
                         unfreeze = True
 
                 if unfreeze:
-                    print(f'unfreezing {name}')
+                    # print(f'unfreezing {name}')
                     param.requires_grad = True
                 else:
                     # print(f'frozen {name}')
