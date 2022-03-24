@@ -4,7 +4,7 @@ from .utils import reduce_losses, to_cuda_half
 from torchvision.utils import make_grid
 
 
-def train_step(config, train_loader, model_engine):
+def train_step(config, train_loader, model_engine, use_torch_amp=False):
     losses = []
 
     for _ in range(config.gradient_accumulation_steps):
@@ -12,10 +12,11 @@ def train_step(config, train_loader, model_engine):
         images, captions = images.half().cuda(), captions.cuda()
         if config.run_blind:
             images = torch.zeros_like(images)
-        outputs = model_engine(images, captions)
+        with torch.cuda.amp.autocast(enabled=use_torch_amp):
+            outputs = model_engine(images, captions)
         loss = outputs.loss
         losses.append(loss)
-        model_engine.backward(loss)
+        model_engine.backward(loss.float())
         model_engine.step()
 
     return reduce_losses(torch.mean(torch.stack(losses))).item()
@@ -45,7 +46,7 @@ def train_step_classification(config, train_loader, model_engine, return_accurac
     return loss_reduced
 
 
-def eval_step(config, eval_loader, model_engine):
+def eval_step(config, eval_loader, model_engine, use_torch_amp=False):
     losses = []
 
     for i in tqdm(range(config.eval_steps), "evaluating..."):
@@ -53,7 +54,8 @@ def eval_step(config, eval_loader, model_engine):
         images, captions = images.half().cuda(), captions.cuda()
         if config.run_blind:
             images = torch.zeros_like(images)
-        outputs = model_engine(images, captions)
+        with torch.cuda.amp.autocast(enabled=use_torch_amp):
+            outputs = model_engine(images, captions)
         loss = outputs.loss
         if torch.isnan(loss).any():
             print('found nan, skipping')
@@ -85,14 +87,15 @@ def eval_step_classification(config, train_loader, model_engine, return_accuracy
     return loss_reduced
 
 
-def inference_step(config, eval_loader, model_engine):
+def inference_step(config, eval_loader, model_engine, use_torch_amp=False):
     images, _ = next(eval_loader)
     images = images.half().cuda()
     if config.run_blind:
         images = torch.zeros_like(images)
-    captions = model_engine(
-        images, captions=None, inference=True
-    )  # [caption1, caption2, ... b]
+    with torch.cuda.amp.autocast(enabled=use_torch_amp):
+        captions = model_engine(
+            images, captions=None, inference=True
+        )  # [caption1, caption2, ... b]
     width = min(2, images.shape[0])
     image_grid = make_grid(images[:width])
     caption = ""

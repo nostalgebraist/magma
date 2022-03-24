@@ -195,7 +195,7 @@ if __name__ == "__main__":
             break
 
         ##### train step
-        loss = train_step(config, train_loader, model_engine)
+        loss = train_step(config, train_loader, model_engine, use_torch_amp=config.use_torch_amp)
 
         global_step += 1
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             with torch.no_grad():
 
                 ##### eval step:
-                eval_loss = eval_step(config, eval_loader, model_engine)
+                eval_loss = eval_step(config, eval_loader, model_engine, use_torch_amp=config.use_torch_amp)
 
                 examples_processed = global_step * config.batch_size
                 wandb_log({"eval/loss": eval_loss, 'eval/examples_processed': examples_processed}, step=global_step)
@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
                 ##### inference:
                 try:
-                    image_grid, caption = inference_step(config, eval_loader, model_engine)
+                    image_grid, caption = inference_step(config, eval_loader, model_engine, use_torch_amp=config.use_torch_amp)
                     wandb_log(
                         {"inference/image": wandb.Image(image_grid, caption=caption),
                          'inference/examples_processed': examples_processed},

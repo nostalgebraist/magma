@@ -42,6 +42,8 @@ class MultimodalConfig:
     fine_tune: bool = False
     load_optimizer: bool = True
 
+    use_torch_amp: bool = False
+
     # Checkpointing:
     # ------------------------------------------------------------
     save_every: int = 2500

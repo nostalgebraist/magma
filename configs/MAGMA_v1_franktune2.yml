@@ -19,6 +19,7 @@
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
     image_size: 384,
+    use_torch_amp: true,
 
     gradient_accumulation_steps: 32,
     zero_stage: 0,
