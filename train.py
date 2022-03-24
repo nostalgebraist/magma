@@ -71,7 +71,7 @@ def __check_params(model, dtype):
     return
 
 
-deepspeed.engine.DeepSpeedEngine.__check_params = __check_params
+deepspeed.runtime.engine.DeepSpeedEngine.__check_params = __check_params
 
 
 def _load_img_cpt_datasets(dataset_dir, tokenizer, transforms):
