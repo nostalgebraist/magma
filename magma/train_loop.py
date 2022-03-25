@@ -12,9 +12,8 @@ def train_step(config, train_loader, model_engine, use_torch_amp=False, grad_sca
         images, captions = images.half().cuda(), captions.cuda()
         if config.run_blind:
             images = torch.zeros_like(images)
-        outputs = model_engine(images, captions)
-        # with torch.cuda.amp.autocast(enabled=use_torch_amp):
-        #     outputs = model_engine(images, captions)
+        with torch.cuda.amp.autocast(enabled=use_torch_amp):
+            outputs = model_engine(images, captions)
         loss = outputs.loss
         losses.append(loss)
         model_engine.backward(loss.float())

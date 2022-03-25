@@ -36,7 +36,7 @@
     ckpt_path: "magma_split_ckpt_frank",
 
     save: "magma_tune_frank_v1",
-    load: "magma_tune_frank_v1",
+    load: "",
     load_optimizer: true,
 
     eval_batch_size: 2,
