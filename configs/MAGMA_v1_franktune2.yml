@@ -28,9 +28,9 @@
     gradient_clipping: 1.0,
 
     # dataset / save / load settings
-    train_dataset_name: 'magma_frank_captions',
-    train_dataset_dir: 'magma_frank_captions',
-    eval_dataset_name: 'magma_frank_captions',
+    train_dataset_name: 'magma_frank_captions2',
+    train_dataset_dir: 'magma_frank_captions2',
+    eval_dataset_name: 'magma_frank_captions2',
     eval_dataset_dir: null,
 
     ckpt_path: "magma_split_ckpt_frank",
