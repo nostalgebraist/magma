@@ -93,17 +93,23 @@ def eval_step_classification(config, train_loader, model_engine, return_accuracy
 
 
 def inference_step(config, eval_loader, model_engine, use_torch_amp=False):
-    images, _ = next(eval_loader)
-    images = images.half().cuda()
-    if config.run_blind:
-        images = torch.zeros_like(images)
-    with torch.cuda.amp.autocast(enabled=use_torch_amp):
-        captions = model_engine(
-            images, captions=None, inference=True
-        )  # [caption1, caption2, ... b]
-    width = min(2, images.shape[0])
-    image_grid = make_grid(images[:width])
-    caption = ""
-    for i in range(width):
-        caption += f"Caption {i}: \n{captions[i]}\n"
+    all_images = []
+    ncap = 0
+    for _ in tqdm(range(config.infer_steps), "generating..."):
+        images, _ = next(eval_loader)
+        images = images.half().cuda()
+        if config.run_blind:
+            images = torch.zeros_like(images)
+        with torch.cuda.amp.autocast(enabled=use_torch_amp):
+            captions = model_engine(
+                images, captions=None, inference=True
+            )  # [caption1, caption2, ... b]
+        caption = ""
+        for i in range(images.shape[0]):
+            caption += f"Caption {ncap}: \n{captions[i]}\n"
+            ncap += 1
+        all_images.append(images)
+
+    images = torch.cat(all_images, dim=0)
+    image_grid = make_grid(images, nrow=2)
     return image_grid, caption

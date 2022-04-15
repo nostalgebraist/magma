@@ -34,6 +34,7 @@ class MultimodalConfig:
     image_size: int = 256
     eval_every: int = 250
     eval_steps: int = 25
+    infer_steps: int = 1
     zero_stage: int = 2
     gradient_clipping: float = 1.0
     warmup_num_steps: int = 100
