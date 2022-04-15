@@ -95,6 +95,7 @@ def eval_step_classification(config, train_loader, model_engine, return_accuracy
 def inference_step(config, eval_loader, model_engine, use_torch_amp=False):
     all_images = []
     ncap = 0
+    caption = ""
     for _ in tqdm(range(config.infer_steps), "generating..."):
         images, _ = next(eval_loader)
         images = images.half().cuda()
@@ -104,7 +105,6 @@ def inference_step(config, eval_loader, model_engine, use_torch_amp=False):
             captions = model_engine(
                 images, captions=None, inference=True
             )  # [caption1, caption2, ... b]
-        caption = ""
         for i in range(images.shape[0]):
             caption += f"Caption {ncap}: \n{captions[i]}\n"
             ncap += 1
