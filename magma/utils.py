@@ -192,8 +192,8 @@ def get_params_for_attn_lr(module, config):
     ) == len(
         param_dict.keys()
     ), "Number of params in both groups != total number of trainable params"
-    print(("normal_params", len(normal_params)))
-    print(("attn_lr_params", len(attn_lr_params)))
+    print(("normal_params", len(normal_params["params"])))
+    print(("attn_lr_params", len(attn_lr_params["params"])))
     return [normal_params, attn_lr_params]
 
 
