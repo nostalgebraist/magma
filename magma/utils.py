@@ -171,13 +171,43 @@ def get_params_for_weight_decay_optimization(module, config):
     return [weight_decay_params, no_weight_decay_params]
 
 
+def get_params_for_attn_lr(module, config):
+    normal_params = {"params": [], "weight_decay": 0.0}
+    attn_lr_params = {"params": [], "weight_decay": 0.0, "lr": config.attn_adapter_lr}
+
+    for n, p in module.named_parameters():
+        if (p is not None) and p.requires_grad:
+            if 'attn.adapter' in n:
+                attn_lr_params["params"].append(p)
+            else:
+                normal_params["params"].append(p)
+
+    param_dict = {
+        pn: p
+        for pn, p in module.named_parameters()
+        if p is not None and p.requires_grad
+    }
+    assert len(attn_lr_params["params"]) + len(
+        normal_params["params"]
+    ) == len(
+        param_dict.keys()
+    ), "Number of params in both groups != total number of trainable params"
+    print(("normal_params", len(normal_params)))
+    print(("attn_lr_params", len(attn_lr_params)))
+    return [normal_params, attn_lr_params]
+
+
 def configure_param_groups(model, config):
     """
     Configures the different parameter groups in the model for training.
     If a separate learning rate for the image prefix is provided, we separate out the groups here.
     Additionally, parameters to which weight decay shouldn't be applied (layernorms / biases) are separated.
     """
-    if config.image_enc_lr is not None:
+    if config.attn_adapter_lr is not None:
+        if (config.image_enc_lr is not None) or (config.weight_decay > 0.0):
+            raise ValueError(f'not implemented: config.image_enc_lr {config.image_enc_lr}, config.weight_decay {config.weight_decay}')
+        all_params = get_params_for_attn_lr(model, config, is_lm=True)
+    elif config.image_enc_lr is not None:
 
         # get the params for the image prefix / proj
         image_enc_params = get_params_for_weight_decay_optimization(
@@ -197,7 +227,7 @@ def configure_param_groups(model, config):
             image_proj_params += image_ln_params
 
         # get the params for the lm
-        lm_params = get_params_for_weight_decay_optimization(model.lm, config)
+        lm_params = get_params_for_weight_decay_optimization(model.lm, config, is_lm=True)
 
         # get params for class head if it exists
         class_params = []
@@ -211,7 +241,7 @@ def configure_param_groups(model, config):
             if p["params"]:
                 all_params.append(p)
     else:
-        all_params = get_params_for_weight_decay_optimization(model, config)
+        all_params = get_params_for_weight_decay_optimization(model, config, is_lm=True)
 
     print('---')
     for g in all_params:

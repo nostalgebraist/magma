@@ -28,6 +28,7 @@ class MultimodalConfig:
     optimizer_name: str = "AdamW"
     lr: float = 8.0e-4
     image_enc_lr: float = None
+    attn_adapter_lr: float = None
     min_lr: float = 0.0
     lr_decay_iters: int = None
     gradient_accumulation_steps: int = 1
