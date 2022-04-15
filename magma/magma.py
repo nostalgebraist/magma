@@ -353,7 +353,7 @@ class Magma(nn.Module):
 
         model = cls(config = config_path)
 
-        sd = torch.load(checkpoint_path, map_location=torch.device("cpu"))
+        sd = torch.load(checkpoint_path, map_location=torch.device(device))
         if "module" in sd.keys():
             sd = sd["module"]
 
