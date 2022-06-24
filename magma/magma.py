@@ -422,7 +422,7 @@ class Magma(nn.Module):
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_ckpt)
 
-        model.lm.load_state_dict(lm_state_dict)
+        model.lm.load_state_dict(lm_state_dict, strict=False)
 
         if n_emb_ckpt != n_emb_us:
             model.lm.resize_token_embeddings(n_emb_us)
