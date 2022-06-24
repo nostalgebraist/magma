@@ -27,7 +27,7 @@ from .transforms import get_transforms
 
 
 class Magma(nn.Module):
-    def __init__(self, config, device=None):
+    def __init__(self, config, device=None, gptj_init_fn=get_gptj):
         super().__init__()
 
         if isinstance(config, (str, Path)):
@@ -41,7 +41,7 @@ class Magma(nn.Module):
             "cuda" if torch.cuda.is_available() else "cpu"
         )
         self.config = config
-        self.lm = get_gptj().to(self.device)
+        self.lm = gptj_init_fn().to(self.device)
         self.seq_len = self.lm.config.max_position_embeddings
 
         self.tokenizer = get_tokenizer("gpt2", sequence_length=self.seq_len)
