@@ -399,8 +399,8 @@ class Magma(nn.Module):
         self.add_adapters()
 
     @classmethod
-    def from_split_checkpoint(cls, config_path, path, lm_path_or_state_dict, device = 'cpu'):
-        model = cls(config = config_path)
+    def from_split_checkpoint(cls, config_path, path, lm_path_or_state_dict, device = 'cpu', gptj_init_fn=get_gptj):
+        model = cls(config = config_path, gptj_init_fn = gptj_init_fn)
 
         model.detach_adapters()
 
