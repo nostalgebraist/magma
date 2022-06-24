@@ -1,3 +1,4 @@
+import gc
 from pathlib import Path
 from os.path import exists
 import os
@@ -410,22 +411,23 @@ class Magma(nn.Module):
         else:
             lm_state_dict = lm_path_or_state_dict
 
-        n_emb_ckpt = lm_state_dict['transformer.wte.weight'].shape[0]
-        n_emb_us = model.lm.transformer.wte.weight.shape[0]
+        if lm_state_dict is not None:
+            n_emb_ckpt = lm_state_dict['transformer.wte.weight'].shape[0]
+            n_emb_us = model.lm.transformer.wte.weight.shape[0]
 
-        print('model.lm.transformer.wte.weight before load')
-        print(model.lm.transformer.wte.weight)
+            print('model.lm.transformer.wte.weight before load')
+            print(model.lm.transformer.wte.weight)
 
-        print('model.lm.transformer.wte.weight in sd')
-        print(lm_state_dict['transformer.wte.weight'])
+            print('model.lm.transformer.wte.weight in sd')
+            print(lm_state_dict['transformer.wte.weight'])
 
-        if n_emb_ckpt != n_emb_us:
-            model.lm.resize_token_embeddings(n_emb_ckpt)
+            if n_emb_ckpt != n_emb_us:
+                model.lm.resize_token_embeddings(n_emb_ckpt)
 
-        model.lm.load_state_dict(lm_state_dict, strict=False)
+            model.lm.load_state_dict(lm_state_dict, strict=False)
 
-        if n_emb_ckpt != n_emb_us:
-            model.lm.resize_token_embeddings(n_emb_us)
+            if n_emb_ckpt != n_emb_us:
+                model.lm.resize_token_embeddings(n_emb_us)
 
         print('model.lm.transformer.wte.weight after load')
         print(model.lm.transformer.wte.weight)
@@ -437,6 +439,8 @@ class Magma(nn.Module):
             print(f'loading sd for {k}')  # debug
             if k in adapter_map_sd:
                 model.adapter_map[k].load_state_dict(adapter_map_sd[k])
+                del adapter_map_sd[k]
+                gc.collect()
             else:
                 pass
                 print(f'not in sd: {k}')
