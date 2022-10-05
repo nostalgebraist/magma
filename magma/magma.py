@@ -8,6 +8,7 @@ from copy import deepcopy
 from typing import Optional, List
 from torchtyping import TensorType
 from transformers.file_utils import ModelOutput
+from transformers import GPTNeoForCausalLM
 from magma.config import MultimodalConfig
 
 from magma.utils import get_tokenizer
@@ -424,7 +425,10 @@ class Magma(nn.Module):
             if n_emb_ckpt != n_emb_us:
                 model.lm.resize_token_embeddings(n_emb_ckpt)
 
-            model.lm.load_state_dict(lm_state_dict, strict=False)
+            # model.lm.load_state_dict(lm_state_dict, strict=False)
+            model.lm, _, _, _ = GPTNeoForCausalLM._load_state_dict_into_model(
+                model.lm, lm_state_dict, ""
+            )
 
             if n_emb_ckpt != n_emb_us:
                 model.lm.resize_token_embeddings(n_emb_us)
