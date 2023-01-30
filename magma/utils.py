@@ -204,10 +204,11 @@ def configure_param_groups(model, config):
     Additionally, parameters to which weight decay shouldn't be applied (layernorms / biases) are separated.
     """
     if config.attn_adapter_lr is not None:
-        if (config.image_enc_lr is not None) or (config.weight_decay > 0.0):
-            raise ValueError(f'not implemented: config.image_enc_lr {config.image_enc_lr}, config.weight_decay {config.weight_decay}')
-        all_params = get_params_for_attn_lr(model, config)
-    elif config.image_enc_lr is not None:
+        assert not config.weight_decay > 0.0
+        lm_params = get_params_for_attn_lr(model, config)
+    else:
+        lm_params = = get_params_for_weight_decay_optimization(model, config)
+    if config.image_enc_lr is not None:
 
         # get the params for the image prefix / proj
         image_enc_params = get_params_for_weight_decay_optimization(
@@ -226,8 +227,8 @@ def configure_param_groups(model, config):
             )
             image_proj_params += image_ln_params
 
-        # get the params for the lm
-        lm_params = get_params_for_weight_decay_optimization(model.lm, config)
+        # # get the params for the lm
+        # lm_params = get_params_for_weight_decay_optimization(model.lm, config)
 
         # get params for class head if it exists
         class_params = []
@@ -241,7 +242,8 @@ def configure_param_groups(model, config):
             if p["params"]:
                 all_params.append(p)
     else:
-        all_params = get_params_for_weight_decay_optimization(model, config)
+        all_params = lm_params
+        # all_params = get_params_for_weight_decay_optimization(model, config)
 
     print('---')
     for g in all_params:
