@@ -10,12 +10,12 @@
 
     # train settings
     batch_size: 32,
-    train_steps: 2050,
+    train_steps: 500,
     lr: 5.0e-5,
     min_lr: 1.0e-5,
     attn_adapter_lr: 3.0e-4,
     lr_decay_iters: 2000,
-    warmup_num_steps: 50,
+    warmup_num_steps: 20,
     image_enc_lr: null,
     use_image_embed_layernorm: true,
     image_embed_dropout_prob: 0.0,
