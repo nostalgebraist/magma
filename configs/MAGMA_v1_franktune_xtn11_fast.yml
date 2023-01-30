@@ -13,7 +13,7 @@
     train_steps: 4100,
     lr: 1.75e-5,
     min_lr: 0.0,
-    attn_adapter_lr: 5e-5,
+    attn_adapter_lr: 5.0e-5,
     lr_decay_iters: 4100,
     warmup_num_steps: 50,
     image_enc_lr: null,
