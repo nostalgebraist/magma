@@ -207,7 +207,7 @@ def configure_param_groups(model, config):
         assert not config.weight_decay > 0.0
         lm_params = get_params_for_attn_lr(model, config)
     else:
-        lm_params = = get_params_for_weight_decay_optimization(model, config)
+        lm_params = get_params_for_weight_decay_optimization(model, config)
     if config.image_enc_lr is not None:
 
         # get the params for the image prefix / proj
