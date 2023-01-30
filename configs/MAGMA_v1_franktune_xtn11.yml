@@ -24,7 +24,7 @@
     use_torch_amp: false,
     use_torch_grad_scaler: false,
 
-    gradient_accumulation_steps: 2,
+    gradient_accumulation_steps: 16,
     zero_stage: 0,
     gradient_clipping: 1.0,
 
@@ -43,5 +43,5 @@
     eval_batch_size: 2,
     eval_every: 5000000,
     eval_steps: 200,
-    save_every: 700,
+    save_every: 500,
 }
