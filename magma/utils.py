@@ -203,12 +203,13 @@ def configure_param_groups(model, config):
     If a separate learning rate for the image prefix is provided, we separate out the groups here.
     Additionally, parameters to which weight decay shouldn't be applied (layernorms / biases) are separated.
     """
+    mod = model.lm if not config.freeze_img_encoder else model
     if config.attn_adapter_lr is not None:
         assert not config.weight_decay > 0.0
-        lm_params = get_params_for_attn_lr(model.lm, config)
+        lm_params = get_params_for_attn_lr(mod, config)
     else:
-        lm_params = get_params_for_weight_decay_optimization(model.lm, config)
-    if config.image_enc_lr is not None:
+        lm_params = get_params_for_weight_decay_optimization(mod, config)
+    if not config.freeze_img_encoder:
 
         # get the params for the image prefix / proj
         image_enc_params = get_params_for_weight_decay_optimization(
