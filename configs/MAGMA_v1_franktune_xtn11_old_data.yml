@@ -24,7 +24,7 @@
     use_torch_amp: false,
     use_torch_grad_scaler: false,
 
-    gradient_accumulation_steps: 16,
+    gradient_accumulation_steps: 2,
     zero_stage: 0,
     gradient_clipping: 1.0,
 
