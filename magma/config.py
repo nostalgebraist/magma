@@ -46,6 +46,7 @@ class MultimodalConfig:
 
     use_torch_amp: bool = False
     use_torch_grad_scaler: bool = False
+    use_apex_amp: bool = False
 
     # Checkpointing:
     # ------------------------------------------------------------
@@ -133,7 +134,8 @@ class MultimodalConfig:
             "train_micro_batch_size_per_gpu": self.batch_size // self.gradient_accumulation_steps,
             "gradient_accumulation_steps": self.gradient_accumulation_steps,
             "gradient_clipping": self.gradient_clipping,
-            "fp16": {"enabled": not (self.use_torch_amp and self.use_torch_grad_scaler), "loss_scale_window": 250, "initial_scale_power": 12},
+            "fp16": {"enabled": not (self.use_torch_amp and self.use_torch_grad_scaler) and not (self.use_apex_amp), "loss_scale_window": 250, "initial_scale_power": 12},
+            "amp": {"enabled": self.use_apex_amp, "opt_level": "O1"},
             "scheduler": self.scheduler_dict,
             "zero_optimization": {
                 "stage": self.zero_stage,
