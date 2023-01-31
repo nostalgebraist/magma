@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
-    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.benchmark = True
 
     deepspeed.init_distributed()
 
