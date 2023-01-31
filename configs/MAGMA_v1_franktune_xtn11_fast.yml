@@ -38,7 +38,7 @@
     ckpt_path: "magma_split_ckpt_frank",
 
     save: "magma_tune_frank_arj_xtn11",
-    load: "",
+    load: "magma_tune_frank_arj_xtn11",
     load_optimizer: true,
 
     eval_batch_size: 2,
