@@ -2,6 +2,7 @@ import torch
 import os
 import deepspeed
 import wandb
+import torch
 from torch.utils.data import random_split, ConcatDataset
 from torch.optim import Adam, AdamW
 from tqdm import tqdm
@@ -117,6 +118,11 @@ if __name__ == "__main__":
     # parse command line arguments:
     args = parse_args()
     # fakeargs = FakeArgs(args.config)
+
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+    torch.backends.cudnn.benchmark = False
+
     deepspeed.init_distributed()
 
 
