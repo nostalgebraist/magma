@@ -5,7 +5,7 @@ import wandb
 import torch
 from torch.utils.data import random_split, ConcatDataset
 from torch.optim import Adam, AdamW
-from tqdm import tqdm
+from tqdm import tqdm, trange
 from functools import partial
 from magma.datasets import (
     collate_fn,
@@ -197,6 +197,10 @@ if __name__ == "__main__":
 
         if config.load_optimizer:
             global_step = previous_global_step
+
+            print(f"fast forwarding data by {global_step} steps")
+            for _ in zip(train_loader, trange(global_step)):
+                pass
 
     pbar = tqdm(
         range(0, config.train_steps),
