@@ -14,7 +14,7 @@
     lr: 2.5e-5,
     min_lr: 5.0e-6,
     attn_adapter_lr: 1.0e-4,
-    lr_decay_iters: 2050,
+    lr_decay_iters: 190,
     warmup_num_steps: 10,
     image_enc_lr: null,
     use_image_embed_layernorm: true,
