@@ -44,5 +44,5 @@
     eval_batch_size: 2,
     eval_every: 5000000,
     eval_steps: 200,
-    save_every: 100,
+    save_every: 200,
 }
