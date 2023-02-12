@@ -421,7 +421,7 @@ def build_labels(
     # make sure to add masked embedding tokens in the appropriate locations in the labels
     embedding_tokens = torch.zeros(shape, dtype=torch.int64).to(device) - 100
     labels = torch.cat(
-        (embedding_tokens, captions[:, : -shape[1]]), dim=1
+        (embedding_tokens, captions[:, : 2048 - shape[1]]), dim=1
     )  # we truncate the sequence length of the captions, as they are always padded to the full sequence length
 
     # mask out repeating eos tokens
