@@ -160,7 +160,8 @@ def collate_fn(batch_data: List[Tuple[torch.Tensor, torch.Tensor]], seq_len=2048
 
     collated_images, collated_captions = torch.cat(all_images), torch.cat([i[:, :seq_len] for i in all_captions])
 
-    effective_length = (collated_captions != 50256).sum(axis=1).max()
+    # plus 1 to keep an EOS token at the end of each caption
+    effective_length = (collated_captions != 50256).sum(axis=1).max() + 1
     collated_captions = collated_captions[:, :effective_length]
 
     return collated_images, collated_captions
