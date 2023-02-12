@@ -12,7 +12,7 @@
     batch_size: 64,
     train_steps: 1025,
     lr: 1.0e-4,
-    min_lr: 1.0e-5,
+    min_lr: 0.0,
     attn_adapter_lr: 4.0e-4,
     lr_decay_iters: 975,
     warmup_num_steps: 50,
