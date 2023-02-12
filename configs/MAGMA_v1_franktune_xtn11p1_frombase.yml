@@ -8,11 +8,11 @@
     freeze_lm: true,
 
     # train settings
-    batch_size: 32,
-    train_steps: 2050,
-    lr: 5.0e-5,
+    batch_size: 64,
+    train_steps: 1025,
+    lr: 1.0e-4,
     min_lr: 1.0e-5,
-    lr_decay_iters: 2000,
+    lr_decay_iters: 975,
     warmup_num_steps: 50,
     image_enc_lr: null,
     use_image_embed_layernorm: true,
