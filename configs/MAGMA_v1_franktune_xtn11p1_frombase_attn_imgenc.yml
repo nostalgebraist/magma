@@ -25,7 +25,7 @@
     use_torch_grad_scaler: false,
     use_apex_amp: false,
 
-    gradient_accumulation_steps: 1,
+    gradient_accumulation_steps: 2,
     zero_stage: 0,
     gradient_clipping: 1.0,
 
