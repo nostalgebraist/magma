@@ -1,7 +1,6 @@
 import argparse
 import torch.distributed as dist
 from transformers import GPT2TokenizerFast
-import deepspeed
 from pathlib import Path
 import wandb
 import os
@@ -64,6 +63,8 @@ def get_tokenizer(name="gpt2", sequence_length=2048):
 
 
 def parse_args():
+    import deepspeed
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config", type=str, required=False, help="path to your training config"
@@ -330,6 +331,8 @@ def get_world_info():
 
 
 def init_distributed(backend="nccl"):
+    import deepspeed
+
     if not torch.distributed.is_initialized():
         deepspeed.init_distributed(
             dist_backend=backend, verbose=True, auto_mpi_discovery=True
