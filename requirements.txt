@@ -5,5 +5,4 @@ gdown
 tqdm
 timm
 git+https://github.com/openai/CLIP.git
-deepspeed
 wandb
