@@ -402,7 +402,7 @@ class Magma(nn.Module):
 
     @classmethod
     def from_split_checkpoint(cls, config_path, path, lm_path_or_state_dict, device = 'cpu', dtype=torch.float16, gptj_init_fn=get_gptj, to_device=True):
-        model = cls(config = config_path, gptj_init_fn = gptj_init_fn)
+        model = cls(config = config_path, gptj_init_fn = gptj_init_fn, device=device)
 
         model.detach_adapters()
 
