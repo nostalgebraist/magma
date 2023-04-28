@@ -1,7 +1,7 @@
 torchtyping
 typeguard
-git+https://github.com/finetuneanon/transformers/@gpt-neo-localattention3-rp-b
-gdown 
+git+https://github.com/nostalgebraist/transformers/@nbar
+gdown
 tqdm
 timm
 git+https://github.com/openai/CLIP.git
